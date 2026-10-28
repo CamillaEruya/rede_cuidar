@@ -1,0 +1,140 @@
+{% set tela = 'feed' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261003-3">
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="feed-main">
+    {% include "partials/feed_navbar.html" %}
+
+    <section class="feed-welcome" aria-label="Boas-vindas">
+      <div class="welcome-art" aria-hidden="true">
+        <span class="welcome-sparkle sparkle-one">&#10022;</span>
+        <span class="welcome-heart">&#9829;</span>
+        <span class="welcome-sparkle sparkle-two">&#10022;</span>
+        <span class="welcome-orbit"></span>
+      </div>
+      <div class="welcome-text">
+        <span class="section-kicker">Um espaço para caminhar junto</span>
+        <h1>Olá,  {{ nome_razao }} Rede esta aqui</h1>
+        <p>Histórias, trocas e acolhimento para seguir em frente, um dia de cada vez.</p>
+      </div>
+      <div class="welcome-stats" aria-label="Resumo da comunidade">
+        <div><strong>1.2 mil</strong><span>pessoas por aqui</span></div>
+        <span class="stats-divider"></span>
+        <div><strong>sempre</strong><span>um lugar de apoio</span></div>
+      </div>
+    </section>
+
+    <section class="timeline" aria-labelledby="timeline-title">
+      <div class="timeline-heading">
+        <div>
+          <span class="section-kicker">Conexões que fazem bem</span>
+          <h2 id="timeline-title">Novidades da rede</h2>
+        </div>
+        <button class="timeline-filter" type="button" disabled>Mais recentes <span aria-hidden="true">&#9662;</span></button>
+      </div>
+
+      <form class="post-composer" aria-label="Criar publicação">
+        <div class="composer-top">
+          <span class="feed-avatar avatar-lilac" aria-hidden="true">AS</span>
+          <label class="composer-input">
+            <span>Compartilhe com a sua rede</span>
+            <textarea aria-label="Escreva uma publicação" placeholder="O que você gostaria de compartilhar hoje?"></textarea>
+          </label>
+        </div>
+        <div class="composer-bottom">
+          <div class="composer-tools" aria-label="Opções de publicação">
+            <button type="button" disabled><span class="tool-icon tool-photo" aria-hidden="true">&#9638;</span> Foto</button>
+            <button type="button" disabled><span class="tool-icon tool-feeling" aria-hidden="true">&#9786;</span> Sentimento</button>
+            <button type="button" disabled><span class="tool-icon tool-topic" aria-hidden="true">&#9830;</span> Tópico</button>
+          </div>
+          <button type="button" class="composer-button" disabled>Publicar <span aria-hidden="true">&rarr;</span></button>
+        </div>
+      </form>
+
+      <div class="timeline-posts">
+        <article class="feed-post">
+          <header class="post-header">
+            <span class="feed-avatar avatar-peach" aria-hidden="true">MC</span>
+            <div class="post-author">
+              <strong>Mariana Costa</strong>
+              <span>Mãe e cuidadora <span aria-hidden="true">&middot;</span> há 20 min <span aria-hidden="true">&middot;</span> &#127758;</span>
+            </div>
+            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
+          </header>
+          <p class="post-copy">Hoje foi um dia cheio de pequenas conquistas por aqui. Aprendemos que cada passo tem seu
+            tempo — e celebrar juntos faz toda a diferença. 💛</p>
+          <figure class="post-media">
+            <img
+              src="{{ url_for('static', path='assets/feed/mariana-conquista.svg') }}"
+              alt="Mariana e uma criança plantando juntas uma muda em um vaso, em um jardim ensolarado.">
+            <figcaption><span aria-hidden="true">&#10022;</span> Pequenos passos, grandes conquistas</figcaption>
+          </figure>
+          <div class="post-tags"><span>#PequenasConquistas</span><span>#CaminhamosJuntos</span></div>
+          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>Você e mais 11 pessoas</span><span class="reaction-comments">3 comentários</span></div>
+          <footer class="post-actions">
+            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
+            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
+            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
+          </footer>
+        </article>
+
+        <article class="feed-post">
+          <header class="post-header">
+            <span class="feed-avatar avatar-mint" aria-hidden="true">RF</span>
+            <div class="post-author">
+              <strong>Rafael Fernandes</strong>
+              <span>Terapeuta ocupacional <span aria-hidden="true">&middot;</span> há 1 h <span aria-hidden="true">&middot;</span> &#127758;</span>
+            </div>
+            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
+          </header>
+          <p class="post-copy">Uma dica para a rotina: antecipar mudanças com recursos visuais pode ajudar a trazer mais
+            previsibilidade e tranquilidade para o dia a dia. O que funciona na sua casa?</p>
+          <div class="post-tags"><span>#DicaDeCuidado</span><span>#InformaçãoQueAcolhe</span></div>
+          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>8 pessoas curtiram</span><span class="reaction-comments">2 comentários</span></div>
+          <footer class="post-actions">
+            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
+            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
+            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
+          </footer>
+        </article>
+
+        <article class="feed-post">
+          <header class="post-header">
+            <span class="feed-avatar avatar-blue">JL</span>
+            <div class="post-author">
+              <strong>Joana Lima</strong>
+              <span>Na comunidade Rede de Apoio <span aria-hidden="true">&middot;</span> ontem <span aria-hidden="true">&middot;</span> &#127758;</span>
+            </div>
+            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
+          </header>
+          <p class="post-copy">Passando para lembrar: você não precisa ter todas as respostas hoje. Pedir ajuda também é
+            uma forma de cuidar. Estamos juntos. 💜</p>
+          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>Você e mais 23 pessoas</span><span class="reaction-comments">6 comentários</span></div>
+          <footer class="post-actions">
+            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
+            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
+            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
+          </footer>
+        </article>
+      </div>
+      <p class="timeline-end"><span aria-hidden="true">&#10022;</span> Você está em um espaço de acolhimento. Que bom ter você aqui.</p>
+    </section>
+  </main>
+</body>
+
+</html>

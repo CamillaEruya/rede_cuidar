@@ -1,0 +1,133 @@
+{% set tela = 'perfil' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Meu perfil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261009-1">
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="feed-main">
+    {% include "partials/feed_navbar.html" %}
+
+    <section class="profile-page" aria-labelledby="profile-title">
+      <header class="profile-hero">
+        <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
+        <span class="section-kicker">Seu espaço na rede</span>
+        <h1 id="profile-title">Meu perfil</h1>
+        <p>Confira as informações da sua conta na Rede Cuidar.</p>
+      </header>
+
+      <article class="profile-card">
+        <header class="profile-card-header">
+          <span class="feed-avatar avatar-lilac profile-avatar" aria-hidden="true">{{ icon_nome_razao }}</span>
+          <div class="profile-heading">
+            <span class="section-kicker">Bem-vinda(o) à Rede Cuidar</span>
+            <h2>{{ nome_razao }}</h2>
+          </div>
+          <button class="secondary-button" type="button" data-open-modal
+            style="width: auto; flex: 0 0 auto; margin-left: auto; padding-left: 15px; padding-right: 15px;">
+            <span aria-hidden="true">&#9998;</span>
+          </button>
+        </header>
+
+        <dl class="profile-details">
+          <div class="profile-detail">
+            <dt><span aria-hidden="true">@</span> E-mail</dt>
+            <dd>{{ email }}</dd>
+          </div>
+          <div class="profile-detail">
+            <dt><span aria-hidden="true">&#9672;</span> Tipo</dt>
+            <dd>{{ tipo }}</dd>
+          </div>
+          <div class="profile-detail">
+            <dt><span aria-hidden="true">&#9638;</span> CPF/CNPJ</dt>
+            <dd>{{ cpf_cnpj }}</dd>
+          </div>
+        <div class="profile-detail">
+         <dt>
+          <span aria-hidden="true">♡</span>
+            Perfil
+              </dt>
+       <dd>{{ perfil_nome }}</dd>
+      </div>
+        </dl>
+
+        <footer class="profile-card-footer">
+        <a class="profile-back-link" href="/feed">
+         <span aria-hidden="true">&larr;</span>
+        Voltar ao feed
+        </a>
+        </footer>
+      </article>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" data-modal aria-hidden="true">
+    <section class="register-modal" role="dialog" aria-modal="true" aria-labelledby="edit-profile-title">
+      <button class="close-button" type="button" data-close-modal aria-label="Fechar edição">&times;</button>
+      <span class="section-kicker">Seu espaço na rede</span>
+      <h2 id="edit-profile-title">Edite suas informações</h2>
+      <p class="modal-intro">Atualize os dados da sua conta na Rede Cuidar.</p>
+      <form action="/perfil/atualizar" method="post" class="register-form">
+        <label for="name">Nome completo</label>
+        <input id="name" name="nome_razao" type="text" value="{{ nome_razao }}"
+          placeholder="Como podemos chamar você?" required>
+        <div class="form-grid">
+          <div>
+            <label for="register-email">E-mail</label>
+            <input id="register-email" name="email" type="email" value="{{ email }}"
+              placeholder="seuemail@exemplo.com" required>
+          </div>
+          <div>
+            <label for="document">CPF ou CNPJ</label>
+            <input id="document" name="cpf_cnpj" type="text" value="{{ cpf_cnpj }}" disabled
+              placeholder="000.000.000-00" required>
+          </div>
+        </div>
+          <label for="profile">Você é</label>
+        <select id="profile" name="id_tipo_perfil" required>
+            <option value="" disabled>Selecione uma opção</option>
+
+            {% for item in tipos_perfil %}
+                {% if item.ativo == 1 %}
+                    <option
+                        value="{{ item.id_tipo_perfil }}"
+                        {% if item.id_tipo_perfil == id_tipo_perfil %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ item.nome }}
+                    </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <div class="form-grid">
+          <div>
+            <label for="register-password">Nova senha</label>
+            <input id="register-password" name="senha" type="password" placeholder="Digite uma nova senha" required>
+          </div>
+          <div>
+            <label for="confirm-password">Confirmar senha</label>
+            <input id="confirm-password" name="confirmar_senha" type="password"
+              placeholder="Repita a nova senha" required>
+          </div>
+        </div>
+        <button class="primary-button" type="submit">Salvar alterações <span>&rarr;</span></button>
+      </form>
+    </section>
+  </div>
+  <script src="{{ url_for('static', path='js/app.js') }}"></script>
+</body>
+
+</html>

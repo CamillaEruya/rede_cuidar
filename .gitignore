@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Arquivos sensíveis
+.env
+.env.*
+
+# Banco SQLite
+*.db
+*.sqlite3
+
+# VS Code
+.vscode/
+
+# Arquivos temporários
+.pytest_cache/
