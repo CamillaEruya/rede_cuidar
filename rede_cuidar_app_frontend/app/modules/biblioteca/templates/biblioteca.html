@@ -1,0 +1,135 @@
+{% set tela = 'biblioteca' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Biblioteca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261023-1">
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="feed-main">
+    {% include "partials/feed_navbar.html" %}
+
+    <section class="library-page" aria-labelledby="library-title">
+      <header class="profile-hero">
+        <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
+        <span class="section-kicker">Informação e conexão em um só lugar</span>
+        <h1 id="library-title">Biblioteca da Rede</h1>
+        <p>Converse com a comunidade e acompanhe conteúdos e novidades da Rede Cuidar.</p>
+      </header>
+
+      <div class="library-content">
+        <section class="library-chat-card" aria-labelledby="chat-title">
+          <header class="library-section-heading">
+            <span class="library-heading-icon" aria-hidden="true">&#9993;</span>
+            <div>
+              <span class="section-kicker">Um espaço de troca</span>
+              <h2 id="chat-title">Chat da comunidade</h2>
+            </div>
+          </header>
+
+          <p class="library-demo-note">Demonstração: as mensagens ficam somente nesta página.</p>
+
+          <div class="library-chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions">
+            <article class="library-chat-message">
+              <span class="feed-avatar avatar-mint" aria-hidden="true">RC</span>
+              <div>
+                <div class="library-chat-author">Equipe Rede Cuidar <time>Hoje</time></div>
+                <p>Boas-vindas ao espaço de conversa! Que tal compartilhar uma dica ou deixar uma mensagem de apoio?</p>
+              </div>
+            </article>
+            <article class="library-chat-message">
+              <span class="feed-avatar avatar-lilac" aria-hidden="true">JL</span>
+              <div>
+                <div class="library-chat-author">Joana Lima <time>10:32</time></div>
+                <p>Adorei encontrar um espaço para trocar experiências com outras famílias. 💜</p>
+              </div>
+            </article>
+          </div>
+
+          <form class="library-chat-form" data-chat-form>
+            <label class="visually-hidden" for="chat-message">Escreva uma mensagem</label>
+            <input id="chat-message" name="message" type="text" placeholder="Escreva uma mensagem..." maxlength="500" required>
+            <button class="composer-button" type="submit" aria-label="Enviar mensagem">Enviar <span aria-hidden="true">&rarr;</span></button>
+          </form>
+        </section>
+
+        <section class="library-news" aria-labelledby="news-title">
+          <header class="library-section-heading">
+            <span class="library-heading-icon library-news-heading-icon" aria-hidden="true">&#9788;</span>
+            <div>
+              <span class="section-kicker">Conteúdos para acompanhar</span>
+              <h2 id="news-title">Notícias e novidades</h2>
+            </div>
+          </header>
+
+          <div class="library-news-list">
+            {% for noticia in noticias %}
+            <article class="library-news-card">
+              <div class="library-news-art {{ noticia.cor }}" aria-hidden="true">{{ noticia.icone }}</div>
+              <div class="library-news-copy">
+                <div class="library-news-meta"><span>{{ noticia.categoria }}</span><time>{{ noticia.data }}</time></div>
+                <h3>{{ noticia.titulo }}</h3>
+                <p>{{ noticia.resumo }}</p>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+          <p class="professionals-note">As notícias exibidas são demonstrativas.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const chatForm = document.querySelector('[data-chat-form]');
+    const chatMessages = document.querySelector('[data-chat-messages]');
+
+    chatForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const input = chatForm.elements.message;
+      const message = input.value.trim();
+      if (!message) return;
+
+      const article = document.createElement('article');
+      article.className = 'library-chat-message library-chat-message-own';
+
+      const avatar = document.createElement('span');
+      avatar.className = 'feed-avatar avatar-blue';
+      avatar.setAttribute('aria-hidden', 'true');
+      avatar.textContent = {{ icon_nome_razao|tojson }};
+
+      const content = document.createElement('div');
+      const author = document.createElement('div');
+      author.className = 'library-chat-author';
+      author.textContent = {{ nome_razao|tojson }};
+
+      const time = document.createElement('time');
+      time.textContent = 'Agora';
+      author.append(' ', time);
+
+      const text = document.createElement('p');
+      text.textContent = message;
+
+      content.append(author, text);
+      article.append(avatar, content);
+      chatMessages.append(article);
+      input.value = '';
+      input.focus();
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  </script>
+</body>
+
+</html>

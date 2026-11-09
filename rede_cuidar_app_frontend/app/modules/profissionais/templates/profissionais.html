@@ -1,0 +1,59 @@
+{% set tela = 'profissionais' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Profissionais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261023-1">
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="feed-main">
+    {% include "partials/feed_navbar.html" %}
+
+    <section class="professionals-page" aria-labelledby="professionals-title">
+      <header class="profile-hero">
+        <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
+        <span class="section-kicker">Cuidado e conhecimento por perto</span>
+        <h1 id="professionals-title">Encontre profissionais</h1>
+        <p>Conheça especialistas que podem apoiar você e sua família em cada etapa.</p>
+      </header>
+
+      <div class="professionals-heading">
+        <div>
+          <span class="section-kicker">Conexões que acolhem</span>
+          <h2>Profissionais em destaque</h2>
+        </div>
+        <span class="professionals-count">{{ profissionais|length }} profissionais</span>
+      </div>
+
+      <div class="professionals-list">
+        {% for profissional in profissionais %}
+        <article class="professional-card">
+          <div class="professional-card-top">
+            <span class="feed-avatar professional-avatar {{ profissional.avatar }}" aria-hidden="true">{{ profissional.iniciais }}</span>
+            <span class="professional-category">{{ profissional.categoria }}</span>
+          </div>
+          <h3>{{ profissional.nome }}</h3>
+          <p class="professional-specialty">{{ profissional.especialidade }}</p>
+          <p class="professional-description">{{ profissional.descricao }}</p>
+          <p class="professional-location"><span aria-hidden="true">&#9906;</span> {{ profissional.localidade }}</p>
+        </article>
+        {% endfor %}
+      </div>
+
+      <p class="professionals-note">Este catálogo é demonstrativo. As informações dos profissionais serão atualizadas em breve.</p>
+    </section>
+  </main>
+</body>
+
+</html>

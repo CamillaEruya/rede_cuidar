@@ -1,0 +1,7 @@
+<nav class="feed-nav" aria-label="Navegação principal">
+    <a class="feed-nav-link {{ 'is-active' if tela == 'feed' else '' }}" href="/feed"><span aria-hidden="true">&#9632;</span> Feed</a>
+    <a class="feed-nav-link {{ 'is-active' if tela == 'biblioteca' else '' }}" href="/biblioteca"{% if tela == 'biblioteca' %} aria-current="page"{% endif %}><span aria-hidden="true">&#9825;</span> Biblioteca</a>
+    <a class="feed-nav-link {{ 'is-active' if tela == 'agenda' else '' }}" href="/agenda"{% if tela == 'agenda' %} aria-current="page"{% endif %}><span aria-hidden="true">&#9734;</span> Agenda</a>
+    <a class="feed-nav-link {{ 'is-active' if tela == 'profissionais' else '' }}" href="/profissionais"{% if tela == 'profissionais' %} aria-current="page"{% endif %}><span aria-hidden="true">&#9734;</span> Profissionais</a>
+    <a class="feed-nav-link {{ 'is-active' if tela == 'perfil' else '' }}" href="/perfil"{% if tela == 'perfil' %} aria-current="page"{% endif %}><span aria-hidden="true">&#9881;</span> Meu perfil</a>
+  </nav>

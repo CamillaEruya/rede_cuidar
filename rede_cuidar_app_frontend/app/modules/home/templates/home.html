@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Acolhimento e conexão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261003-3">
+</head>
+<body{% if open_register %} data-open-register="true" {% endif %}>
+  <main class="page-shell">
+    <section class="welcome-panel">
+      <header class="brand-lockup">
+        <img src="{{ url_for('static', path='assets/logo.jpg') }}" alt="Rede Cuidar">
+      </header>
+      <div class="welcome-copy">
+        <span class="eyebrow">Uma rede para caminhar junto</span>
+        <h1>Informação que acolhe. <em>Conexão que transforma.</em></h1>
+        <p>A Rede Cuidar aproxima famílias, pessoas atípicas e profissionais para criar caminhos mais seguros,
+          inclusivos e possíveis.</p>
+      </div>
+      <div class="pillars" aria-label="Pilares da Rede Cuidar">
+        <div class="pillar"><span class="pillar-icon teal">&#9829;</span><span><strong>Acolhimento</strong><small>Um
+              espaço seguro para você</small></span></div>
+        <div class="pillar"><span
+            class="pillar-icon yellow">&#9670;</span><span><strong>Informação</strong><small>Conteúdo confiável e
+              acessível</small></span></div>
+        <div class="pillar"><span
+            class="pillar-icon purple">&#10024;</span><span><strong>Orientação</strong><small>Respostas para o dia a
+              dia</small></span></div>
+      </div>
+      <footer class="welcome-footer"><span class="footer-mark"></span> Conectando famílias, fortalecendo a inclusão.
+      </footer>
+    </section>
+
+    <section class="access-panel">
+      <div class="access-card">
+        <div class="mobile-logo"><img src="{{ url_for('static', path='assets/logo.jpg') }}" alt="Rede Cuidar"></div>
+        <div class="card-heading"><span class="section-kicker">Boas-vindas</span>
+          <h2>Entre na sua rede</h2>
+          <p>Tenha um espaço para encontrar apoio e compartilhar experiências.</p>
+        </div>
+        {% if message_cadastro and success_cadastro %}<div class="notice {{ message_type|default('info') }}" role="status">{{ message_cadastro }}</div>{% endif %}
+        <form class="login-form" action="/logar" method="post">
+          <label for="email">E-mail</label>
+          <div class="input-wrap"><span aria-hidden="true">@</span><input id="email" name="email" type="email"
+              placeholder="seuemail@exemplo.com" required></div>
+          <label for="password">Senha</label>
+          <div class="input-wrap"><span aria-hidden="true">&#9673;</span><input id="password" name="senha" type="password"
+              placeholder="Digite sua senha" required><button class="password-toggle" type="button"
+              aria-label="Mostrar senha" data-password-toggle>&#9673;</button></div>
+          <div class="form-options"><label class="remember"><input type="checkbox"><span></span>Lembrar de mim</label><a
+              href="#" onclick="return false;">Esqueci minha senha</a></div>
+          <button class="primary-button" type="submit">Entrar na Rede <span>&rarr;</span></button>
+          {% if not success_login %}
+            <p class="login-feedback" id="login-feedback">{{ message_login }}</p>
+          {% endif %}
+        </form>
+        <div class="divider"><span>ou</span></div>
+        <button class="secondary-button" type="button" data-open-modal>Criar minha conta <span>+</span></button>
+        <p class="privacy-note"><span>&#128274;</span> Seus dados são tratados com respeito e segurança.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" data-modal aria-hidden="true">
+    <section class="register-modal" role="dialog" aria-modal="true" aria-labelledby="register-title">
+      <button class="close-button" type="button" data-close-modal aria-label="Fechar cadastro">&times;</button>
+      <span class="section-kicker">Comece agora</span>
+      <h2 id="register-title">Crie seu espaço na rede</h2>
+      {% if message_cadastro and not success_cadastro %}<div class="notice {{ message_type|default('info') }}" role="status">{{ message_cadastro }}</div>{% endif %}
+      <p class="modal-intro">Conte um pouco sobre você para encontrarmos a melhor forma de acolher sua jornada.</p>
+      <form action="/cadastro" method="post" class="register-form">
+        <label for="name">Nome completo</label><input id="name" name="nome_razao" type="text"
+          placeholder="Como podemos chamar você?" required>
+        <div class="form-grid">
+          <div>
+            <label for="register-email">E-mail</label>
+            <input id="register-email" name="email" type="email" placeholder="seuemail@exemplo.com" required>
+          </div>
+          <div>
+            <label for="document">CPF ou CNPJ</label>
+            <input id="document" name="cpf_cnpj" type="text" placeholder="000.000.000-00" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div><label for="register-password">Senha</label><input id="register-password" name="senha" type="password"
+              placeholder="Crie sua senha"></div>
+          <div><label for="confirm-password">Confirmar senha</label><input id="confirm-password" name="confirmar_senha"
+              type="password" placeholder="Repita sua senha"></div>
+        </div>
+        <label for="profile">Você é</label>
+        <select id="profile" name="id_tipo_perfil" required>
+          <option value="" disabled selected>Selecione uma opção</option>
+          {% for perfil in tipos_perfil %}
+          <option value="{{ perfil.id_tipo_perfil }}">{{ perfil.nome }}</option>
+          {% endfor %}
+        </select>
+        <button class="primary-button" type="submit">Entrar para a Rede <span>&rarr;</span></button>
+      </form>
+    </section>
+  </div>
+  <script src="{{ url_for('static', path='js/app.js') }}"></script>
+  </body>
+
+</html>

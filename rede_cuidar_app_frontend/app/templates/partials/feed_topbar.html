@@ -1,0 +1,16 @@
+<header class="feed-topbar">
+  <div class="feed-topbar-inner">
+    <a class="feed-brand" href="/feed" aria-label="Rede Cuidar - Feed">
+      <img src="{{ url_for('static', path='assets/logo.jpg') }}" alt="Rede Cuidar">
+    </a>
+    <label class="feed-search">
+      <span aria-hidden="true">&#9906;</span>
+      <input type="search" placeholder="Buscar na Rede Cuidar" aria-label="Buscar na Rede Cuidar">
+    </label>
+    <a class="feed-profile" href="/perfil" aria-label="Perfil de {{nome_razao}}">
+      <span class="feed-avatar avatar-lilac">{{icon_nome_razao}}</span>
+      <span class="feed-profile-name">{{nome_razao}}</span>
+      <span class="profile-chevron" aria-hidden="true">&#9662;</span>
+    </a>
+  </div>
+</header>

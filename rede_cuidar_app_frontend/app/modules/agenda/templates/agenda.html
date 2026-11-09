@@ -1,0 +1,64 @@
+{% set tela = 'agenda' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Agenda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261023-1">
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="feed-main">
+    {% include "partials/feed_navbar.html" %}
+
+    <section class="agenda-page" aria-labelledby="agenda-title">
+      <header class="profile-hero">
+        <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
+        <span class="section-kicker">Momentos para aprender e compartilhar</span>
+        <h1 id="agenda-title">Agenda da comunidade</h1>
+        <p>Encontros, conversas e atividades para caminharmos juntos.</p>
+      </header>
+
+      <div class="agenda-heading">
+        <div>
+          <span class="section-kicker">Reserve um momento para você</span>
+          <h2>Próximos eventos</h2>
+        </div>
+        <span class="professionals-count">{{ eventos|length }} eventos</span>
+      </div>
+
+      <div class="agenda-events">
+        {% for evento in eventos %}
+        <article class="agenda-event">
+          <div class="agenda-date {{ evento.cor }}" aria-label="{{ evento.dia }} de {{ evento.mes }}">
+            <strong>{{ evento.dia }}</strong>
+            <span>{{ evento.mes }}</span>
+          </div>
+          <div class="agenda-event-content">
+            <div class="agenda-event-meta">
+              <span>{{ evento.dia_semana }} · {{ evento.horario }}</span>
+              <span class="agenda-event-type">{{ evento.tipo }}</span>
+            </div>
+            <h3>{{ evento.titulo }}</h3>
+            <p>{{ evento.descricao }}</p>
+            <span class="agenda-event-location"><span aria-hidden="true">&#9906;</span> {{ evento.local }}</span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <p class="professionals-note">Esta agenda é demonstrativa. Datas e eventos serão atualizados em breve.</p>
+    </section>
+  </main>
+</body>
+
+</html>
