@@ -20,6 +20,26 @@ O cadastro usa os campos `id_tipo_pessoa`, `id_tipo_perfil` (opcional),
 `nome_razao`, `email`, `cpf_cnpj` e `ativo`. Cada pessoa pode ter um único perfil,
 referenciado diretamente por `id_tipo_perfil`.
 
+## Cadastro de profissional
+
+- `POST /api/profissional`: cadastra os dados profissionais de uma pessoa já
+  cadastrada. Cada pessoa pode ter um único cadastro profissional.
+- `GET /api/profissional/{id_pessoa}`: consulta os dados profissionais da pessoa
+  autenticada.
+- `GET /api/profissional`: lista os cadastros profissionais de pessoas ativas
+  para a comunidade autenticada.
+- `PUT /api/profissional/{id_pessoa}`: cria ou atualiza os dados profissionais da
+  pessoa autenticada.
+
+No POST, o corpo deve conter `id_pessoa`, `endereco`, `numero`, `cidade`, `estado`,
+`cep`, `telefone` e `descricao`. No PUT, envie os campos profissionais sem
+`id_pessoa`, que é obtido da URL. `inscricao_conselho` e `area_atuacao` são
+opcionais. `status_verificacao` não pode ser alterado pelo cliente; em um novo
+cadastro, inicia como `PENDENTE`.
+As rotas GET e PUT exigem token Bearer e só permitem consultar ou alterar o cadastro
+da própria pessoa. A rota PUT preserva o status de verificação já existente.
+O catálogo inclui todos os status de verificação das pessoas ativas.
+
 Instale as dependências:
 
 ```bash
@@ -50,5 +70,5 @@ e `DB_DATABASE=database.sqlite`; o arquivo do banco local não é incluído no p
 
 ## Configuração do banco
 
-A conexão usa as variáveis do `.env`; as tabelas precisam existir no banco. O script
-`database.sql` contém a estrutura das tabelas e os dados iniciais de tipos e perfis.
+A conexão usa as variáveis do `.env`. As tabelas necessárias devem existir no banco
+MySQL antes de iniciar a API.
