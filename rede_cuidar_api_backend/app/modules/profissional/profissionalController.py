@@ -1,3 +1,4 @@
+
 from typing import Any
 
 from fastapi import HTTPException
@@ -5,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.modules.profissional import profissionalModel as model
 from app.modules.user import userController
+
 
 PROFISSIONAL_FIELDS = {
     "endereco": 200,
@@ -21,18 +23,24 @@ PROFISSIONAL_FIELDS = {
 
 def _profissional_data(data: dict[str, Any]) -> dict[str, Any]:
     pessoa_id = data.get("id_pessoa")
+
     if type(pessoa_id) is not int or pessoa_id <= 0:
         raise HTTPException(
             status_code=400,
             detail="Campo id_pessoa deve ser um inteiro positivo.",
         )
 
-    profissional_data: dict[str, Any] = {"id_pessoa": pessoa_id}
+    profissional_data: dict[str, Any] = {
+        "id_pessoa": pessoa_id
+    }
 
     for field, max_length in PROFISSIONAL_FIELDS.items():
         value = data.get(field)
+
         if field in {"inscricao_conselho", "area_atuacao"}:
-            if value is None or isinstance(value, str) and not value.strip():
+            if value is None or (
+                isinstance(value, str) and not value.strip()
+            ):
                 profissional_data[field] = None
                 continue
 
@@ -43,23 +51,40 @@ def _profissional_data(data: dict[str, Any]) -> dict[str, Any]:
             )
 
         value = value.strip()
+
         if max_length is not None and len(value) > max_length:
             raise HTTPException(
                 status_code=400,
-                detail=f"Campo {field} deve ter no máximo {max_length} caracteres.",
+                detail=(
+                    f"Campo {field} deve ter no máximo "
+                    f"{max_length} caracteres."
+                ),
             )
+
         profissional_data[field] = value
 
-    profissional_data["estado"] = profissional_data["estado"].upper()
-    if len(profissional_data["estado"]) != 2 or not profissional_data["estado"].isalpha():
+    profissional_data["estado"] = (
+        profissional_data["estado"].upper()
+    )
+
+    if (
+        len(profissional_data["estado"]) != 2
+        or not profissional_data["estado"].isalpha()
+    ):
         raise HTTPException(
             status_code=400,
             detail="Campo estado deve conter a sigla de dois caracteres.",
         )
 
-    if len(profissional_data["cep"]) != 8 or not profissional_data["cep"].isdigit():
-        cep = profissional_data["cep"]
-        if len(cep) == 9 and cep[5] == "-" and cep[:5].isdigit() and cep[6:].isdigit():
+    cep = profissional_data["cep"]
+
+    if len(cep) != 8 or not cep.isdigit():
+        if (
+            len(cep) == 9
+            and cep[5] == "-"
+            and cep[:5].isdigit()
+            and cep[6:].isdigit()
+        ):
             profissional_data["cep"] = cep[:5] + cep[6:]
         else:
             raise HTTPException(
@@ -75,20 +100,29 @@ def post_profissional(data: dict[str, Any]) -> dict[str, Any]:
     pessoa_id = profissional_data["id_pessoa"]
 
     if not model.pessoa_existe(pessoa_id):
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada.")
+        raise HTTPException(
+            status_code=404,
+            detail="Pessoa não encontrada."
+        )
 
     if model.profissional_existe(pessoa_id):
         raise HTTPException(
             status_code=409,
-            detail="Já existe um cadastro profissional associado a esta pessoa.",
+            detail="Já existe um cadastro profissional associado a esta pessoa."
         )
 
     try:
-        profissional_id = model.cadastrar_profissional(profissional_data)
+        profissional_id = model.cadastrar_profissional(
+            profissional_data
+        )
+
     except IntegrityError as error:
         raise HTTPException(
             status_code=409,
-            detail="Não foi possível cadastrar: a pessoa já possui cadastro profissional ou não está mais disponível.",
+            detail=(
+                "Não foi possível cadastrar: a pessoa já possui "
+                "cadastro profissional ou não está mais disponível."
+            )
         ) from error
 
     return {
@@ -99,20 +133,22 @@ def post_profissional(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def get_profissionais(pessoa_id: int, token: str) -> list[dict[str, Any]]:
+    userController.autenticar(pessoa_id, token)
+    return model.listar_profissionais()
+
+
 def get_profissional(pessoa_id: int, token: str) -> dict[str, Any]:
     userController.autenticar(pessoa_id, token)
     profissional = model.buscar_profissional(pessoa_id)
+
     if profissional is None:
         raise HTTPException(
             status_code=404,
             detail="Cadastro profissional não encontrado.",
         )
+
     return profissional
-
-
-def get_profissionais(pessoa_id: int, token: str) -> list[dict[str, Any]]:
-    userController.autenticar(pessoa_id, token)
-    return model.listar_profissionais()
 
 
 def put_profissional(
@@ -121,13 +157,20 @@ def put_profissional(
     token: str,
 ) -> dict[str, Any]:
     userController.autenticar(pessoa_id, token)
-    profissional_data = _profissional_data({**data, "id_pessoa": pessoa_id})
 
     if not model.pessoa_existe(pessoa_id):
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada.")
+        raise HTTPException(
+            status_code=404,
+            detail="Pessoa não encontrada.",
+        )
+
+    profissional_data = _profissional_data(
+        {**data, "id_pessoa": pessoa_id}
+    )
 
     try:
         profissional = model.buscar_profissional(pessoa_id)
+
         if profissional is None:
             profissional_id = model.cadastrar_profissional(profissional_data)
             status_verificacao = "PENDENTE"
