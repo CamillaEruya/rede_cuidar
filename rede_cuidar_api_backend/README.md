@@ -68,7 +68,7 @@ python -m pip install -r requirements.txt
 Execute:
 
 ```bash
-python run.py
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 A API Python ficará disponível em `http://localhost:8001`, com documentação em `/docs`.
