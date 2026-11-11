@@ -658,78 +658,112 @@ input::placeholder {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
   color: var(--ink);
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+  list-style: none;
+  cursor: pointer;
+}
+
+.feed-profile::-webkit-details-marker {
+  display: none;
+}
+
+.feed-profile:focus-visible {
+  outline: 2px solid #078c90;
+  outline-offset: 4px;
+}
+
+.feed-account-menu {
+  position: relative;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .profile-chevron {
   color: #80918e;
   font-size: 11px;
+  transition: transform 0.2s;
+}
+
+.feed-account-menu[open] .profile-chevron {
+  transform: rotate(180deg);
+}
+
+.feed-account-dropdown {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 12px);
+  right: 0;
+  display: grid;
+  width: 220px;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #e3ebe8;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px #18324b1c;
+}
+
+.feed-account-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #667879;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.feed-account-link > span:first-child {
+  width: 18px;
+  color: #829391;
+  font-size: 15px;
+  text-align: center;
+}
+
+.feed-account-link:hover,
+.feed-account-link.is-active {
+  background: #f0f7f5;
+  color: #087d80;
+}
+
+.feed-account-link.is-active > span:first-child {
+  color: #078c90;
+}
+
+.feed-account-logout-form {
+  margin: 4px 0 0;
+  padding-top: 4px;
+  border-top: 1px solid #edf1ef;
+}
+
+.feed-account-logout {
+  width: 100%;
+  color: #a44336;
+}
+
+.feed-account-logout:hover,
+.feed-account-logout:hover > span:first-child {
+  background: #fff0ed;
+  color: #a44336;
 }
 
 .feed-main {
   width: min(100% - 32px, 720px);
   margin: 26px auto 60px;
-}
-
-.feed-nav {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto 23px;
-  padding: 6px;
-  border: 1px solid #e5edeb;
-  border-radius: 12px;
-  background: #ffffffc7;
-  box-shadow: 0 7px 22px #18324b08;
-}
-
-.feed-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 0 15px;
-  border-radius: 8px;
-  color: #667879;
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s, transform 0.2s;
-}
-
-.feed-nav-link > span {
-  color: #8b9b99;
-  font-size: 16px;
-}
-
-.feed-nav-link:hover {
-  background: #f0f7f5;
-  color: #087d80;
-  transform: translateY(-1px);
-}
-
-.feed-nav-link.is-active {
-  background: #b8e1fb;
-  color: #087d80;
-  box-shadow: inset 0 0 0 1px #a6d5f2;
-}
-
-.feed-nav-link.is-active > span {
-  color: #078c90;
-}
-
-.feed-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.feed-nav {
-  scrollbar-width: none;
 }
 
 .feed-welcome {
@@ -1631,6 +1665,35 @@ input::placeholder {
   box-shadow: 0 0 0 1px #e3ebe8;
 }
 
+.feed-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+.profile-photo-form {
+  display: grid;
+  gap: 8px;
+  margin: 0 20px 20px;
+  color: #647477;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.profile-photo-form > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-photo-form input {
+  max-width: 100%;
+  font: inherit;
+}
+
 .avatar-lilac {
   background: #eadff4;
   color: #7650a7;
@@ -1698,6 +1761,25 @@ input::placeholder {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+}
+
+.composer-file {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid #e3ebe8;
+  border-radius: 6px;
+  color: #397b7b;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.composer-photo {
+  min-width: 0;
+  width: min(230px, 42%);
+  color: #6c7d7a;
+  font-size: 11px;
 }
 
 .composer-tools button {
@@ -1983,8 +2065,7 @@ input::placeholder {
     gap: 0;
   }
 
-  .feed-profile-name,
-  .profile-chevron {
+  .feed-profile-name {
     display: none;
   }
 
@@ -1999,20 +2080,6 @@ input::placeholder {
 
   .professionals-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .feed-nav {
-    justify-content: flex-start;
-    width: 100%;
-    gap: 3px;
-    overflow-x: auto;
-  }
-
-  .feed-nav-link {
-    flex: 0 0 auto;
-    gap: 6px;
-    padding: 0 11px;
-    font-size: 11px;
   }
 
   .feed-welcome {

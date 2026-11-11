@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, Form, File, UploadFile
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from typing import Annotated
 from app.modules.perfil import perfilController
@@ -25,6 +25,11 @@ async def perfil(request: Request) -> HTMLResponse:
             return RedirectResponse(url="/", status_code=303)
 
     var_context = await perfilController.perfil_context(request)
+    if request.query_params.get("foto_atualizada") == "1":
+        var_context["message_foto_perfil"] = (
+            "Foto de perfil atualizada com sucesso."
+        )
+        var_context["message_type_foto_perfil"] = "success"
     
     return templates.TemplateResponse(
         request=request,
@@ -58,6 +63,36 @@ async def atualizar(
         request=request,
         name="perfil.html",
         context=context,
+    )
+
+
+@router.post("/foto", response_class=HTMLResponse)
+async def atualizar_foto_perfil(
+    request: Request,
+    foto: Annotated[UploadFile, File()],
+) -> Response:
+    autenticado, _ = await userController.autenticar(request)
+    if not autenticado:
+        return RedirectResponse(url="/", status_code=303)
+
+    success, message = await perfilController.atualizar_foto_perfil(
+        request,
+        foto,
+    )
+    if success:
+        return RedirectResponse(
+            url="/perfil/?foto_atualizada=1",
+            status_code=303,
+        )
+
+    context = await perfilController.perfil_context(request)
+    context["message_foto_perfil"] = message
+    context["message_type_foto_perfil"] = "error"
+    return templates.TemplateResponse(
+        request=request,
+        name="perfil.html",
+        context=context,
+        status_code=400,
     )
 
 
