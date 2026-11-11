@@ -81,3 +81,9 @@ async def logar(
         name="home.html",
         context=context,
     )
+
+
+@router.post("/sair")
+async def sair(request: Request) -> RedirectResponse:
+    request.session.clear()
+    return RedirectResponse(url="/", status_code=303)

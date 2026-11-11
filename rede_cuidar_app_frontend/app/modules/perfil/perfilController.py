@@ -2,7 +2,7 @@ import re
 from typing import Any
 
 import httpx
-from fastapi import Request
+from fastapi import Request, UploadFile
 
 from app.modules.user import userController
 from app.modules.user.userController import API_BASE_URL, authorization_headers
@@ -104,6 +104,12 @@ async def perfil_context(request: Request) -> dict[str, Any]:
             "request": request,
             "nome_razao": pessoa.get("nome_razao"),
             "icon_nome_razao": userController.iconAvatar(pessoa.get("nome_razao") or ""),
+            "foto_perfil_url": (
+                f"{API_BASE_URL}{pessoa['foto_perfil']}"
+                if isinstance(pessoa.get("foto_perfil"), str)
+                and pessoa["foto_perfil"].startswith("/uploads/")
+                else None
+            ),
             "email": pessoa.get("email"),
             "tipo": pessoa.get("tipo"),
             "cpf_cnpj": pessoa.get("cpf_cnpj"),
@@ -121,6 +127,7 @@ async def perfil_context(request: Request) -> dict[str, Any]:
             "request": request,
             "nome_razao": "",
             "icon_nome_razao": "",
+            "foto_perfil_url": None,
             "email": "",
             "tipo": "",
             "cpf_cnpj": "",
@@ -214,3 +221,63 @@ async def atualizar(
     if isinstance(detail, str):
         return False, detail
     return False, "Não foi possível atualizar o cadastro."
+
+
+async def atualizar_foto_perfil(
+    request: Request,
+    foto: UploadFile,
+) -> tuple[bool, str]:
+    pessoa_id = request.session.get("id_pessoa")
+    token = request.session.get("token")
+    if pessoa_id is None or not token:
+        return False, "Sessão inválida. Faça login novamente."
+
+    try:
+        conteudo = await foto.read(5 * 1024 * 1024 + 1)
+    except OSError:
+        return False, "Não foi possível ler a imagem selecionada."
+
+    if len(conteudo) > 5 * 1024 * 1024:
+        return False, "A foto deve ter no máximo 5 MB."
+    if not conteudo:
+        return False, "Selecione uma foto para enviar."
+
+    try:
+        async with httpx.AsyncClient(
+            base_url=API_BASE_URL,
+            timeout=15.0,
+        ) as client:
+            response = await client.put(
+                f"/api/pessoas/{pessoa_id}/foto-perfil",
+                headers=authorization_headers(token),
+                files={
+                    "foto": (
+                        foto.filename or "foto",
+                        conteudo,
+                        foto.content_type or "application/octet-stream",
+                    )
+                },
+            )
+    except httpx.RequestError:
+        return False, "Não foi possível conectar à API. Verifique se ela está ativa."
+
+    if response.is_success:
+        try:
+            result = response.json()
+        except ValueError:
+            return False, "A API retornou uma resposta inválida ao salvar a foto."
+        message = result.get("message") if isinstance(result, dict) else None
+        return True, (
+            message
+            if isinstance(message, str)
+            else "Foto de perfil atualizada com sucesso."
+        )
+
+    try:
+        detail = response.json().get("detail") if response.content else None
+    except (ValueError, AttributeError):
+        detail = None
+
+    if isinstance(detail, str):
+        return False, detail
+    return False, "Não foi possível atualizar a foto de perfil."

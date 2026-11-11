@@ -11,15 +11,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261003-3">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
 </head>
 
 <body class="feed-page">
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    {% include "partials/feed_navbar.html" %}
-
     <section class="feed-welcome" aria-label="Boas-vindas">
       <div class="welcome-art" aria-hidden="true">
         <span class="welcome-sparkle sparkle-one">&#10022;</span>
@@ -48,89 +46,69 @@
         <button class="timeline-filter" type="button" disabled>Mais recentes <span aria-hidden="true">&#9662;</span></button>
       </div>
 
-      <form class="post-composer" aria-label="Criar publicação">
+      {% if message_publicacao %}
+      <p class="notice {{ message_type_publicacao }}" role="{% if message_type_publicacao == 'error' %}alert{% else %}status{% endif %}">
+        {{ message_publicacao }}
+      </p>
+      {% endif %}
+      {% if feed_error %}
+      <p class="notice error" role="alert">{{ feed_error }}</p>
+      {% endif %}
+
+      <form class="post-composer" action="/feed/publicar" method="post" enctype="multipart/form-data" aria-label="Criar publicação">
         <div class="composer-top">
-          <span class="feed-avatar avatar-lilac" aria-hidden="true">AS</span>
+          <span class="feed-avatar avatar-lilac" aria-hidden="true">
+            {% if foto_perfil_url %}
+            <img src="{{ foto_perfil_url }}" alt="">
+            {% else %}
+            {{ icon_nome_razao }}
+            {% endif %}
+          </span>
           <label class="composer-input">
             <span>Compartilhe com a sua rede</span>
-            <textarea aria-label="Escreva uma publicação" placeholder="O que você gostaria de compartilhar hoje?"></textarea>
+            <textarea name="descricao" aria-label="Escreva uma publicação" placeholder="O que você gostaria de compartilhar hoje?" maxlength="1000">{{ descricao_publicacao }}</textarea>
           </label>
         </div>
         <div class="composer-bottom">
-          <div class="composer-tools" aria-label="Opções de publicação">
-            <button type="button" disabled><span class="tool-icon tool-photo" aria-hidden="true">&#9638;</span> Foto</button>
-            <button type="button" disabled><span class="tool-icon tool-feeling" aria-hidden="true">&#9786;</span> Sentimento</button>
-            <button type="button" disabled><span class="tool-icon tool-topic" aria-hidden="true">&#9830;</span> Tópico</button>
-          </div>
-          <button type="button" class="composer-button" disabled>Publicar <span aria-hidden="true">&rarr;</span></button>
+          <label class="composer-file" for="publication-photo">Adicionar foto</label>
+          <input class="composer-photo" id="publication-photo" type="file" name="foto" accept="image/jpeg,image/png,image/gif,image/webp">
+          <button type="submit" class="composer-button">Publicar <span aria-hidden="true">&rarr;</span></button>
         </div>
       </form>
 
       <div class="timeline-posts">
+        {% for post in publicacoes %}
         <article class="feed-post">
           <header class="post-header">
-            <span class="feed-avatar avatar-peach" aria-hidden="true">MC</span>
+            <span class="feed-avatar {{ post.avatar_class }}" aria-hidden="true">
+              {% if post.foto_perfil_url %}
+              <img src="{{ post.foto_perfil_url }}" alt="">
+              {% else %}
+              {{ post.iniciais }}
+              {% endif %}
+            </span>
             <div class="post-author">
-              <strong>Mariana Costa</strong>
-              <span>Mãe e cuidadora <span aria-hidden="true">&middot;</span> há 20 min <span aria-hidden="true">&middot;</span> &#127758;</span>
+              <strong>{{ post.nome_razao }}</strong>
+              <span>Comunidade Rede Cuidar <span aria-hidden="true">&middot;</span>
+                <time>{{ post.data_publicacao or "publicado recentemente" }}</time>
+                <span aria-hidden="true">&middot;</span> &#127758;
+              </span>
             </div>
-            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
           </header>
-          <p class="post-copy">Hoje foi um dia cheio de pequenas conquistas por aqui. Aprendemos que cada passo tem seu
-            tempo — e celebrar juntos faz toda a diferença. 💛</p>
+          {% if post.descricao %}
+          <p class="post-copy">{{ post.descricao }}</p>
+          {% endif %}
+          {% if post.foto_url %}
           <figure class="post-media">
-            <img
-              src="{{ url_for('static', path='assets/feed/mariana-conquista.svg') }}"
-              alt="Mariana e uma criança plantando juntas uma muda em um vaso, em um jardim ensolarado.">
-            <figcaption><span aria-hidden="true">&#10022;</span> Pequenos passos, grandes conquistas</figcaption>
+            <img src="{{ post.foto_url }}" alt="Foto compartilhada por {{ post.nome_razao }}" loading="lazy">
           </figure>
-          <div class="post-tags"><span>#PequenasConquistas</span><span>#CaminhamosJuntos</span></div>
-          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>Você e mais 11 pessoas</span><span class="reaction-comments">3 comentários</span></div>
-          <footer class="post-actions">
-            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
-            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
-            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
-          </footer>
+          {% endif %}
         </article>
-
-        <article class="feed-post">
-          <header class="post-header">
-            <span class="feed-avatar avatar-mint" aria-hidden="true">RF</span>
-            <div class="post-author">
-              <strong>Rafael Fernandes</strong>
-              <span>Terapeuta ocupacional <span aria-hidden="true">&middot;</span> há 1 h <span aria-hidden="true">&middot;</span> &#127758;</span>
-            </div>
-            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
-          </header>
-          <p class="post-copy">Uma dica para a rotina: antecipar mudanças com recursos visuais pode ajudar a trazer mais
-            previsibilidade e tranquilidade para o dia a dia. O que funciona na sua casa?</p>
-          <div class="post-tags"><span>#DicaDeCuidado</span><span>#InformaçãoQueAcolhe</span></div>
-          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>8 pessoas curtiram</span><span class="reaction-comments">2 comentários</span></div>
-          <footer class="post-actions">
-            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
-            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
-            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
-          </footer>
-        </article>
-
-        <article class="feed-post">
-          <header class="post-header">
-            <span class="feed-avatar avatar-blue">JL</span>
-            <div class="post-author">
-              <strong>Joana Lima</strong>
-              <span>Na comunidade Rede de Apoio <span aria-hidden="true">&middot;</span> ontem <span aria-hidden="true">&middot;</span> &#127758;</span>
-            </div>
-            <button class="post-menu" type="button" aria-label="Mais opções" disabled>&middot;&middot;&middot;</button>
-          </header>
-          <p class="post-copy">Passando para lembrar: você não precisa ter todas as respostas hoje. Pedir ajuda também é
-            uma forma de cuidar. Estamos juntos. 💜</p>
-          <div class="post-reaction-summary"><span class="reaction-bubbles"><i>&#9829;</i><i>&#10084;</i></span><span>Você e mais 23 pessoas</span><span class="reaction-comments">6 comentários</span></div>
-          <footer class="post-actions">
-            <button type="button" disabled><span aria-hidden="true">&#9825;</span> Curtir</button>
-            <button type="button" disabled><span aria-hidden="true">&#9711;</span> Comentar</button>
-            <button type="button" disabled><span aria-hidden="true">&#8599;</span> Compartilhar</button>
-          </footer>
-        </article>
+        {% else %}
+        {% if not feed_error %}
+        <p class="notice">Ainda não há publicações. Seja a primeira pessoa a compartilhar algo com a rede.</p>
+        {% endif %}
+        {% endfor %}
       </div>
       <p class="timeline-end"><span aria-hidden="true">&#10022;</span> Você está em um espaço de acolhimento. Que bom ter você aqui.</p>
     </section>

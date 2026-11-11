@@ -11,15 +11,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261109-1">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
 </head>
 
 <body class="feed-page"{% if open_professional_modal %} data-open-professional-modal="true"{% endif %}>
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    {% include "partials/feed_navbar.html" %}
-
     <section class="profile-page" aria-labelledby="profile-title">
       <header class="profile-hero">
         <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
@@ -30,7 +28,13 @@
 
       <article class="profile-card">
         <header class="profile-card-header">
-          <span class="feed-avatar avatar-lilac profile-avatar" aria-hidden="true">{{ icon_nome_razao }}</span>
+          <span class="feed-avatar avatar-lilac profile-avatar" aria-hidden="true">
+            {% if foto_perfil_url %}
+            <img src="{{ foto_perfil_url }}" alt="">
+            {% else %}
+            {{ icon_nome_razao }}
+            {% endif %}
+          </span>
           <div class="profile-heading">
             <span class="section-kicker">Bem-vinda(o) à Rede Cuidar</span>
             <h2>{{ nome_razao }}</h2>
@@ -41,6 +45,18 @@
             <span aria-hidden="true">&#9998;</span>
           </button>
         </header>
+        {% if message_foto_perfil %}
+        <p class="notice {{ message_type_foto_perfil }}" role="{% if message_type_foto_perfil == 'error' %}alert{% else %}status{% endif %}">
+          {{ message_foto_perfil }}
+        </p>
+        {% endif %}
+        <form action="/perfil/foto" method="post" enctype="multipart/form-data" class="profile-photo-form">
+          <label for="profile-photo">Foto de perfil (JPG, PNG, GIF ou WebP; até 5 MB)</label>
+          <div>
+            <input id="profile-photo" name="foto" type="file" accept="image/jpeg,image/png,image/gif,image/webp" required>
+            <button class="secondary-button" type="submit">Atualizar foto</button>
+          </div>
+        </form>
 
         <dl class="profile-details">
           <div class="profile-detail">
