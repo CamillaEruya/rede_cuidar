@@ -40,6 +40,25 @@ As rotas GET e PUT exigem token Bearer e só permitem consultar ou alterar o cad
 da própria pessoa. A rota PUT preserva o status de verificação já existente.
 O catálogo inclui todos os status de verificação das pessoas ativas.
 
+## Publicações do feed
+
+- `GET /api/publicacoes`: lista as publicações de pessoas ativas.
+- `POST /api/publicacoes`: cria uma publicação para a pessoa autenticada. Envie
+  `descricao` (até 1000 caracteres) e, opcionalmente, `foto` como caminho; é necessário
+  informar o cabeçalho `X-User-ID` e um token Bearer.
+- `POST /api/publicacoes/com-foto`: cria uma publicação com upload multipart
+  (`descricao` opcional e `foto` obrigatória). Aceita JPG, PNG, GIF e WebP de
+  até 5 MB; salva a imagem em `app/uploads/publicacoes` e registra o caminho
+  em `publicacao.foto`.
+- `PUT /api/publicacoes/{id_publicacao}` e
+  `DELETE /api/publicacoes/{id_publicacao}`: atualizam ou desativam uma
+  publicação pertencente à pessoa autenticada.
+
+`PUT /api/pessoas/{id_pessoa}/foto-perfil` recebe o campo multipart `foto`,
+autenticado com token Bearer, e atualiza `pessoa.foto_perfil`. A foto é
+armazenada em `app/uploads/perfis` e pode ser exibida como avatar; sem foto, o
+frontend mantém as iniciais da pessoa.
+
 Instale as dependências:
 
 ```bash
@@ -72,3 +91,8 @@ e `DB_DATABASE=database.sqlite`; o arquivo do banco local não é incluído no p
 
 A conexão usa as variáveis do `.env`. As tabelas necessárias devem existir no banco
 MySQL antes de iniciar a API.
+
+Para habilitar as fotos de perfil, aplique uma vez a migração
+`migrations/20261110_add_foto_perfil_to_pessoa.sql` no banco configurado. Ela
+adiciona a coluna opcional `pessoa.foto_perfil`; as imagens enviadas ficam em
+`app/uploads/perfis` e são servidas pela rota `/uploads`.
