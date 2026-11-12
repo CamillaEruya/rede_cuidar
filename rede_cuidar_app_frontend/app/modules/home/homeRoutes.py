@@ -14,7 +14,10 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
-    context = homeController.home_context(request)
+    message_login = request.session.pop("login_error", None)
+    context = homeController.home_context(request, message_login)
+    context["success_login"] = not message_login
+    context["message_login"] = message_login
     context["tipos_perfil"] = await homeController.listar_tipos_perfil()
     return templates.TemplateResponse(
         request=request,
@@ -72,15 +75,8 @@ async def logar(
     if success:
         return RedirectResponse(url="/feed/", status_code=303)
 
-    context = homeController.home_context(request, message)
-    context["tipos_perfil"] = await homeController.listar_tipos_perfil()
-    context["success_login"] = success
-    context["message_login"] = message
-    return templates.TemplateResponse(
-        request=request,
-        name="home.html",
-        context=context,
-    )
+    request.session["login_error"] = message
+    return RedirectResponse(url="/", status_code=303)
 
 
 @router.post("/sair")

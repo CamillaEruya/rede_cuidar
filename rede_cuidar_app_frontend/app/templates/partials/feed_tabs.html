@@ -1,0 +1,9 @@
+<nav class="feed-section-tabs" aria-label="Seções principais">
+  <div class="feed-section-tabs-inner">
+    <a class="{{ 'is-active' if tela == 'feed' else '' }}" href="/feed"{% if tela == 'feed' %} aria-current="page"{% endif %}>Feed</a>
+    <a class="{{ 'is-active' if tela == 'biblioteca' else '' }}" href="/biblioteca"{% if tela == 'biblioteca' %} aria-current="page"{% endif %}>Biblioteca</a>
+    <a class="{{ 'is-active' if tela == 'agenda' else '' }}" href="/agenda"{% if tela == 'agenda' %} aria-current="page"{% endif %}>Agenda</a>
+    <a class="{{ 'is-active' if tela == 'profissionais' else '' }}" href="/profissionais"{% if tela == 'profissionais' %} aria-current="page"{% endif %}>Profissionais</a>
+    <a class="{{ 'is-active' if tela == 'perfil' else '' }}" href="/perfil"{% if tela == 'perfil' %} aria-current="page"{% endif %}>Perfil</a>
+  </div>
+</nav>

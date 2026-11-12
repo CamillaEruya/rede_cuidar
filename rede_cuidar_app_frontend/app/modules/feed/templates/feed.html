@@ -11,33 +11,40 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261111-8">
 </head>
 
-<body class="feed-page">
+<body class="feed-page feed-home-page">
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    <section class="feed-welcome" aria-label="Boas-vindas">
-      <div class="welcome-art" aria-hidden="true">
-        <span class="welcome-sparkle sparkle-one">&#10022;</span>
-        <span class="welcome-heart">&#9829;</span>
-        <span class="welcome-sparkle sparkle-two">&#10022;</span>
-        <span class="welcome-orbit"></span>
-      </div>
-      <div class="welcome-text">
-        <span class="section-kicker">Um espaço para caminhar junto</span>
-        <h1>Olá,  {{ nome_razao }} Rede esta aqui</h1>
-        <p>Histórias, trocas e acolhimento para seguir em frente, um dia de cada vez.</p>
-      </div>
-      <div class="welcome-stats" aria-label="Resumo da comunidade">
-        <div><strong>1.2 mil</strong><span>pessoas por aqui</span></div>
-        <span class="stats-divider"></span>
-        <div><strong>sempre</strong><span>um lugar de apoio</span></div>
-      </div>
-    </section>
+    <div class="feed-layout">
+      <aside class="feed-illustrations feed-illustrations-left" aria-label="Ilustrações da comunidade">
+        <img src="{{ url_for('static', path='assets/feed/Dra. Marina Alves_ Fonoaudiologia Infantil-1.png') }}" alt="Divulgação da fonoaudióloga Dra. Marina Alves" loading="lazy">
+        <img src="{{ url_for('static', path='assets/feed/mark1.png') }}" alt="Divulgação dos serviços do psicopedagogo Lucas Ferreira" loading="lazy">
+      </aside>
 
-    <section class="timeline" aria-labelledby="timeline-title">
+      <div class="feed-main-column">
+        <section class="feed-welcome" aria-label="Boas-vindas">
+          <div class="welcome-art" aria-hidden="true">
+            <span class="welcome-sparkle sparkle-one">&#10022;</span>
+            <span class="welcome-heart">&#9829;</span>
+            <span class="welcome-sparkle sparkle-two">&#10022;</span>
+            <span class="welcome-orbit"></span>
+          </div>
+          <div class="welcome-text">
+            <span class="section-kicker">Um espaço para caminhar junto</span>
+            <h1>Olá,  {{ nome_razao }} Rede esta aqui</h1>
+            <p>Histórias, trocas e acolhimento para seguir em frente, um dia de cada vez.</p>
+          </div>
+          <div class="welcome-stats" aria-label="Resumo da comunidade">
+            <div><strong>1.2 mil</strong><span>pessoas por aqui</span></div>
+            <span class="stats-divider"></span>
+            <div><strong>sempre</strong><span>um lugar de apoio</span></div>
+          </div>
+        </section>
+
+        <section class="timeline" aria-labelledby="timeline-title">
       <div class="timeline-heading">
         <div>
           <span class="section-kicker">Conexões que fazem bem</span>
@@ -111,7 +118,14 @@
         {% endfor %}
       </div>
       <p class="timeline-end"><span aria-hidden="true">&#10022;</span> Você está em um espaço de acolhimento. Que bom ter você aqui.</p>
-    </section>
+        </section>
+      </div>
+
+      <aside class="feed-illustrations feed-illustrations-right" aria-label="Mais ilustrações da comunidade">
+        <img src="{{ url_for('static', path='assets/feed/mark2.png') }}" alt="Divulgação dos serviços da psicóloga Dra. Camila Rocha" loading="lazy">
+        <img src="{{ url_for('static', path='assets/feed/mark3.png') }}" alt="Divulgação dos serviços do terapeuta ocupacional Rafael Mendes" loading="lazy">
+      </aside>
+    </div>
   </main>
 </body>
 

@@ -29,6 +29,8 @@ services:
     restart: unless-stopped
     env_file: ./rede_cuidar_api_backend/.env
     ports: ["8001:8001"]
+    volumes:
+      - ./documentos/biblioteca:/opt/rede-cuidar/documentos/biblioteca:ro
     depends_on:
       rede_cuidar_db:
         condition: service_healthy
