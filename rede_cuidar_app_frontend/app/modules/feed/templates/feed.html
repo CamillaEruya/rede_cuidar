@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261111-8">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261112-4">
 </head>
 
 <body class="feed-page feed-home-page">
@@ -19,11 +19,6 @@
 
   <main class="feed-main">
     <div class="feed-layout">
-      <aside class="feed-illustrations feed-illustrations-left" aria-label="Ilustrações da comunidade">
-        <img src="{{ url_for('static', path='assets/feed/Dra. Marina Alves_ Fonoaudiologia Infantil-1.png') }}" alt="Divulgação da fonoaudióloga Dra. Marina Alves" loading="lazy">
-        <img src="{{ url_for('static', path='assets/feed/mark1.png') }}" alt="Divulgação dos serviços do psicopedagogo Lucas Ferreira" loading="lazy">
-      </aside>
-
       <div class="feed-main-column">
         <section class="feed-welcome" aria-label="Boas-vindas">
           <div class="welcome-art" aria-hidden="true">
@@ -43,6 +38,13 @@
             <div><strong>sempre</strong><span>um lugar de apoio</span></div>
           </div>
         </section>
+
+        <aside class="feed-illustrations" aria-label="Ilustrações da comunidade">
+          <img src="{{ url_for('static', path='assets/feed/Dra. Marina Alves_ Fonoaudiologia Infantil-1.png') }}" alt="Divulgação da fonoaudióloga Dra. Marina Alves" loading="lazy">
+          <img src="{{ url_for('static', path='assets/feed/mark1.png') }}" alt="Divulgação dos serviços do psicopedagogo Lucas Ferreira" loading="lazy">
+          <img src="{{ url_for('static', path='assets/feed/mark2.png') }}" alt="Divulgação dos serviços da psicóloga Dra. Camila Rocha" loading="lazy">
+          <img src="{{ url_for('static', path='assets/feed/mark3.png') }}" alt="Divulgação dos serviços do terapeuta ocupacional Rafael Mendes" loading="lazy">
+        </aside>
 
         <section class="timeline" aria-labelledby="timeline-title">
       <div class="timeline-heading">
@@ -120,11 +122,6 @@
       <p class="timeline-end"><span aria-hidden="true">&#10022;</span> Você está em um espaço de acolhimento. Que bom ter você aqui.</p>
         </section>
       </div>
-
-      <aside class="feed-illustrations feed-illustrations-right" aria-label="Mais ilustrações da comunidade">
-        <img src="{{ url_for('static', path='assets/feed/mark2.png') }}" alt="Divulgação dos serviços da psicóloga Dra. Camila Rocha" loading="lazy">
-        <img src="{{ url_for('static', path='assets/feed/mark3.png') }}" alt="Divulgação dos serviços do terapeuta ocupacional Rafael Mendes" loading="lazy">
-      </aside>
     </div>
   </main>
 </body>
