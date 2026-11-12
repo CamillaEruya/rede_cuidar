@@ -611,15 +611,16 @@ input::placeholder {
 }
 
 .feed-section-tabs {
-  border-bottom: 1px solid #e5edeb;
-  background: #fbfcfaf2;
+  background: transparent;
 }
 
 .feed-section-tabs-inner {
   display: flex;
-  width: min(100% - 48px, 1140px);
-  gap: 8px;
+  align-items: center;
+  width: min(100% - 32px, 720px);
+  gap: 0;
   margin: auto;
+  padding: 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -629,19 +630,24 @@ input::placeholder {
 }
 
 .feed-section-tabs a {
-  flex: 0 0 auto;
-  padding: 14px 12px 12px;
-  border-bottom: 2px solid transparent;
-  color: #667879;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 14px;
+  border: 1px solid #b7def4;
+  border-radius: 10px;
+  background: #fff;
+  color: #246f7a;
   font-size: 13px;
   font-weight: 700;
+  text-align: center;
   text-decoration: none;
-  transition: color 0.2s, border-color 0.2s;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
 }
 
 .feed-section-tabs a:hover,
 .feed-section-tabs a.is-active {
-  border-bottom-color: #078c90;
+  border-color: #8bc8eb;
+  background: #e8f5fc;
   color: #087d80;
 }
 
@@ -798,7 +804,7 @@ input::placeholder {
 
 .feed-main {
   width: min(100% - 32px, 720px);
-  margin: 26px auto 60px;
+  margin: 0 auto 60px;
 }
 
 .feed-home-page .feed-main {
@@ -806,10 +812,8 @@ input::placeholder {
 }
 
 .feed-layout {
-  display: grid;
-  grid-template-columns: minmax(185px, 0.75fr) minmax(620px, 2.4fr) minmax(185px, 0.75fr);
-  align-items: start;
-  gap: 20px;
+  max-width: 840px;
+  margin: 0 auto;
 }
 
 .feed-main-column {
@@ -818,22 +822,20 @@ input::placeholder {
 
 .feed-illustrations {
   display: grid;
-  gap: 16px;
-  padding-top: 6px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: -10px 0 29px;
 }
 
 .feed-illustrations img {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 4 / 3;
   border: 1px solid #e5edeb;
   border-radius: 14px;
   object-fit: contain;
+  background: #fff;
   box-shadow: 0 12px 32px #18324b0a;
-}
-
-.feed-illustrations-right {
-  padding-top: 6px;
 }
 
 .feed-welcome {
@@ -1798,14 +1800,21 @@ input::placeholder {
 
 .profile-photo-form > div {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 10px;
 }
 
 .profile-photo-form input {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 100%;
   font: inherit;
+}
+
+.profile-photo-form .secondary-button {
+  width: auto;
+  flex: 0 0 auto;
 }
 
 .avatar-lilac {
@@ -2146,13 +2155,6 @@ input::placeholder {
     width: min(100% - 32px, 720px);
   }
 
-  .feed-layout {
-    display: block;
-  }
-
-  .feed-illustrations {
-    display: none;
-  }
 }
 
 @media (max-width: 700px) {
@@ -2179,6 +2181,10 @@ input::placeholder {
     width: calc(100% - 32px);
   }
 
+  .feed-section-tabs a {
+    flex: 0 0 auto;
+  }
+
   .feed-brand {
     flex: 0 0 auto;
   }
@@ -2203,15 +2209,7 @@ input::placeholder {
 
   .feed-main {
     width: min(100% - 28px, 620px);
-    margin-top: 19px;
-  }
-
-  .feed-layout {
-    display: block;
-  }
-
-  .feed-illustrations {
-    display: none;
+    margin-top: 0;
   }
 
   .library-content {
@@ -2265,6 +2263,12 @@ input::placeholder {
   .welcome-text p {
     max-width: 320px;
   }
+
+  .feed-illustrations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: -6px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2275,10 +2279,11 @@ input::placeholder {
 
   .feed-section-tabs-inner {
     width: calc(100% - 22px);
-    gap: 2px;
+    gap: 0;
   }
 
   .feed-section-tabs a {
+    flex: 0 0 auto;
     padding-right: 10px;
     padding-left: 10px;
     font-size: 12px;
