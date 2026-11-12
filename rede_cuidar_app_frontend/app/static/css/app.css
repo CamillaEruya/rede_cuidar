@@ -610,6 +610,41 @@ input::placeholder {
   margin: auto;
 }
 
+.feed-section-tabs {
+  border-bottom: 1px solid #e5edeb;
+  background: #fbfcfaf2;
+}
+
+.feed-section-tabs-inner {
+  display: flex;
+  width: min(100% - 48px, 1140px);
+  gap: 8px;
+  margin: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.feed-section-tabs-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.feed-section-tabs a {
+  flex: 0 0 auto;
+  padding: 14px 12px 12px;
+  border-bottom: 2px solid transparent;
+  color: #667879;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.feed-section-tabs a:hover,
+.feed-section-tabs a.is-active {
+  border-bottom-color: #078c90;
+  color: #087d80;
+}
+
 .feed-brand {
   flex: 0 0 190px;
 }
@@ -764,6 +799,41 @@ input::placeholder {
 .feed-main {
   width: min(100% - 32px, 720px);
   margin: 26px auto 60px;
+}
+
+.feed-home-page .feed-main {
+  width: min(100% - 32px, 1400px);
+}
+
+.feed-layout {
+  display: grid;
+  grid-template-columns: minmax(185px, 0.75fr) minmax(620px, 2.4fr) minmax(185px, 0.75fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.feed-main-column {
+  min-width: 0;
+}
+
+.feed-illustrations {
+  display: grid;
+  gap: 16px;
+  padding-top: 6px;
+}
+
+.feed-illustrations img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #e5edeb;
+  border-radius: 14px;
+  object-fit: contain;
+  box-shadow: 0 12px 32px #18324b0a;
+}
+
+.feed-illustrations-right {
+  padding-top: 6px;
 }
 
 .feed-welcome {
@@ -1018,7 +1088,7 @@ input::placeholder {
   font-size: 17px;
 }
 
-.library-demo-note {
+.library-chat-note {
   margin: 15px 0 12px;
   padding: 9px 11px;
   border-radius: 8px;
@@ -1091,6 +1161,18 @@ input::placeholder {
 .library-chat-message-own p {
   border-radius: 10px 0 10px 10px;
   background: #e4f3f2;
+}
+
+.library-chat-message .library-chat-sources {
+  padding: 0;
+  background: transparent;
+  color: #687879;
+  font-size: 10px;
+}
+
+.library-chat-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .library-chat-form {
@@ -1193,6 +1275,38 @@ input::placeholder {
   color: #687879;
   font-size: 10px;
   line-height: 1.55;
+}
+
+.library-news-refresh {
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  flex: 0 1 auto;
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 11px;
+  font-size: 11px;
+  white-space: normal;
+}
+
+.library-news-refresh:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.library-news-link {
+  display: inline-block;
+  margin-top: 9px;
+  color: #087d80;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.library-news-link:hover {
+  text-decoration: underline;
 }
 
 .visually-hidden {
@@ -2027,6 +2141,20 @@ input::placeholder {
   color: #dd90d7;
 }
 
+@media (max-width: 1050px) {
+  .feed-home-page .feed-main {
+    width: min(100% - 32px, 720px);
+  }
+
+  .feed-layout {
+    display: block;
+  }
+
+  .feed-illustrations {
+    display: none;
+  }
+}
+
 @media (max-width: 700px) {
   .professional-profile-card {
     align-items: stretch;
@@ -2044,6 +2172,10 @@ input::placeholder {
 
   .feed-topbar-inner {
     gap: 15px;
+    width: calc(100% - 32px);
+  }
+
+  .feed-section-tabs-inner {
     width: calc(100% - 32px);
   }
 
@@ -2074,8 +2206,31 @@ input::placeholder {
     margin-top: 19px;
   }
 
+  .feed-layout {
+    display: block;
+  }
+
+  .feed-illustrations {
+    display: none;
+  }
+
   .library-content {
     grid-template-columns: 1fr;
+  }
+
+  .library-news .library-section-heading {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .library-news .library-section-heading > div {
+    min-width: 0;
+  }
+
+  .library-news-refresh {
+    grid-column: 2;
+    justify-self: start;
+    margin: 0;
   }
 
   .professionals-list {
@@ -2116,6 +2271,17 @@ input::placeholder {
   .feed-topbar-inner {
     gap: 9px;
     width: calc(100% - 22px);
+  }
+
+  .feed-section-tabs-inner {
+    width: calc(100% - 22px);
+    gap: 2px;
+  }
+
+  .feed-section-tabs a {
+    padding-right: 10px;
+    padding-left: 10px;
+    font-size: 12px;
   }
 
   .feed-brand img {

@@ -28,7 +28,8 @@ else
     sql_password=$(printf '%s' "$DB_PASSWORD" | sed "s/'/''/g")
     sql_database=$(printf '%s' "$DB_DATABASE" | sed 's/`/``/g')
     umask 077
-    cat > /tmp/rede-cuidar-credentials.sql <<EOF
+    credentials_file=$(mktemp /tmp/rede-cuidar-credentials.XXXXXX.sql)
+    cat > "$credentials_file" <<EOF
 SET SESSION sql_mode='NO_BACKSLASH_ESCAPES';
 CREATE DATABASE IF NOT EXISTS \`$sql_database\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '$sql_user'@'%' IDENTIFIED BY '$sql_password';
@@ -36,10 +37,10 @@ ALTER USER '$sql_user'@'%' IDENTIFIED BY '$sql_password';
 GRANT ALL PRIVILEGES ON \`$sql_database\`.* TO '$sql_user'@'%';
 EOF
     if [ "$DB_USERNAME" = "root" ]; then
-        printf "ALTER USER 'root'@'localhost' IDENTIFIED BY '%s';\n" "$sql_password" >> /tmp/rede-cuidar-credentials.sql
+        printf "ALTER USER 'root'@'localhost' IDENTIFIED BY '%s';\n" "$sql_password" >> "$credentials_file"
     fi
-    chown mysql:mysql /tmp/rede-cuidar-credentials.sql
-    set -- "$@" --init-file=/tmp/rede-cuidar-credentials.sql
+    chown mysql:mysql "$credentials_file"
+    set -- "$@" --init-file="$credentials_file"
 fi
 
 exec /usr/local/bin/docker-entrypoint.sh "$@"
