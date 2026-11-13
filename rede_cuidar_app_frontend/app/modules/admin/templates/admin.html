@@ -1,0 +1,410 @@
+{% set tela = 'admin' %}
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rede Cuidar | Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
+  <style>
+    .admin-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .admin-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+    }
+    .admin-kpi-card {
+      background: #ffffff;
+      border: 1px solid #e6ece9;
+      border-radius: 16px;
+      padding: 1.15rem 1.25rem;
+      box-shadow: 0 4px 16px rgba(18, 43, 35, 0.04);
+    }
+    .admin-kpi-card span {
+      display: block;
+      font-size: 0.85rem;
+      color: #5b6e66;
+      margin-bottom: 0.35rem;
+    }
+    .admin-kpi-card strong {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.75rem;
+      color: #163329;
+    }
+    .admin-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      border-bottom: 2px solid #e6ece9;
+      padding-bottom: 0.75rem;
+    }
+    .admin-tab-btn {
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid #d5e0db;
+      background: #ffffff;
+      color: #29463b;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .admin-tab-btn.is-active {
+      background: #1f6f54;
+      border-color: #1f6f54;
+      color: #ffffff;
+    }
+    .admin-card {
+      background: #ffffff;
+      border: 1px solid #e6ece9;
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: 0 6px 20px rgba(18, 43, 35, 0.04);
+      overflow-x: auto;
+    }
+    .admin-card h2 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.2rem;
+      color: #163329;
+      margin: 0 0 1rem;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .admin-table th,
+    .admin-table td {
+      text-align: left;
+      padding: 0.75rem 0.65rem;
+      border-bottom: 1px solid #edf2f0;
+      vertical-align: middle;
+    }
+    .admin-table th {
+      font-weight: 700;
+      color: #465b53;
+      background: #f7faf9;
+    }
+    .admin-badge {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-ok { background: #e1f5ec; color: #156648; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .admin-inline-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .admin-select {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #cbd7d2;
+      font-size: 0.85rem;
+      background: #fff;
+    }
+    .admin-btn {
+      padding: 0.42rem 0.8rem;
+      border-radius: 8px;
+      border: none;
+      background: #1f6f54;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.83rem;
+      cursor: pointer;
+    }
+    .admin-btn:hover { background: #185741; }
+    .admin-alert {
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .admin-alert.success { background: #e1f5ec; color: #156648; border: 1px solid #b7e4d0; }
+    .admin-alert.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  </style>
+</head>
+
+<body class="feed-page">
+  {% include "partials/feed_topbar.html" %}
+
+  <main class="admin-container">
+    <section class="feed-welcome" aria-label="Cabeçalho administrativo">
+      <div class="welcome-text">
+        <span class="section-kicker">Backoffice • Acesso Restrito</span>
+        <h1>Painel Administrativo</h1>
+        <p>Gerencie usuários, perfis de acesso, validação de profissionais, agendamentos e publicações da Rede Cuidar.</p>
+      </div>
+    </section>
+
+    {% if flash_msg %}
+      <div class="admin-alert {{ flash_type }}">{{ flash_msg }}</div>
+    {% endif %}
+
+    {% if admin_error %}
+      <div class="admin-alert error">{{ admin_error }}</div>
+    {% endif %}
+
+    {% set pendentes = profissionais | selectattr('status_verificacao', 'equalto', 'PENDENTE') | list | length %}
+    <section class="admin-kpis" aria-label="Resumo geral">
+      <div class="admin-kpi-card">
+        <span>Total de Usuários</span>
+        <strong>{{ usuarios | length }}</strong>
+      </div>
+      <div class="admin-kpi-card">
+        <span>Profissionais Pendentes</span>
+        <strong>{{ pendentes }}</strong>
+      </div>
+      <div class="admin-kpi-card">
+        <span>Agendamentos / Eventos</span>
+        <strong>{{ agendas | length }}</strong>
+      </div>
+      <div class="admin-kpi-card">
+        <span>Publicações</span>
+        <strong>{{ publicacoes | length }}</strong>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Seções administrativas">
+      <a class="admin-tab-btn {{ 'is-active' if aba_ativa == 'usuarios' else '' }}" href="/admin?aba=usuarios">
+        Usuários &amp; Perfis ({{ usuarios | length }})
+      </a>
+      <a class="admin-tab-btn {{ 'is-active' if aba_ativa == 'profissionais' else '' }}" href="/admin?aba=profissionais">
+        Profissionais ({{ profissionais | length }})
+      </a>
+      <a class="admin-tab-btn {{ 'is-active' if aba_ativa == 'agendas' else '' }}" href="/admin?aba=agendas">
+        Agendas ({{ agendas | length }})
+      </a>
+      <a class="admin-tab-btn {{ 'is-active' if aba_ativa == 'publicacoes' else '' }}" href="/admin?aba=publicacoes">
+        Publicações ({{ publicacoes | length }})
+      </a>
+    </nav>
+
+    {% if aba_ativa == 'usuarios' %}
+    <section class="admin-card">
+      <h2>Gerenciamento de Usuários e Perfis</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome / Razão Social</th>
+            <th>E-mail</th>
+            <th>Perfil Atual</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td>#{{ u.id_pessoa }}</td>
+            <td><strong>{{ u.nome_razao }}</strong></td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.nome_perfil or ('Perfil ' ~ u.id_tipo_perfil) }}</td>
+            <td>
+              {% if u.ativo == 1 %}
+                <span class="admin-badge badge-ok">Ativo</span>
+              {% else %}
+                <span class="admin-badge badge-danger">Inativo</span>
+              {% endif %}
+            </td>
+            <td>
+              <form class="admin-inline-form" action="/admin/usuarios/{{ u.id_pessoa }}" method="post">
+                <select class="admin-select" name="id_tipo_perfil" aria-label="Tipo de perfil">
+                  <option value="1" {% if u.id_tipo_perfil == 1 %}selected{% endif %}>1 - Familiar / Cuidador</option>
+                  <option value="2" {% if u.id_tipo_perfil == 2 %}selected{% endif %}>2 - Profissional</option>
+                  <option value="3" {% if u.id_tipo_perfil == 3 %}selected{% endif %}>3 - Clínica / Instituição</option>
+                  <option value="9" {% if u.id_tipo_perfil == 9 %}selected{% endif %}>9 - Administrador</option>
+                </select>
+                <select class="admin-select" name="ativo" aria-label="Status da conta">
+                  <option value="1" {% if u.ativo == 1 %}selected{% endif %}>Ativo</option>
+                  <option value="0" {% if u.ativo == 0 %}selected{% endif %}>Inativo</option>
+                </select>
+                <button class="admin-btn" type="submit">Salvar</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">Nenhum usuário cadastrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {% if aba_ativa == 'profissionais' %}
+    <section class="admin-card">
+      <h2>Validação e Status de Profissionais</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Profissional</th>
+            <th>Conselho / Registro</th>
+            <th>Localidade</th>
+            <th>Status</th>
+            <th>Validação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in profissionais %}
+          <tr>
+            <td>#{{ p.id_pessoa }}</td>
+            <td>
+              <strong>{{ p.nome_razao }}</strong><br>
+              <small>{{ p.email }}</small>
+            </td>
+            <td>{{ p.inscricao_conselho or 'Não informado' }}</td>
+            <td>{{ p.cidade or '-' }} / {{ p.estado or '-' }}</td>
+            <td>
+              {% if p.status_verificacao == 'APROVADO' %}
+                <span class="admin-badge badge-ok">APROVADO</span>
+              {% elif p.status_verificacao == 'REJEITADO' %}
+                <span class="admin-badge badge-danger">REJEITADO</span>
+              {% else %}
+                <span class="admin-badge badge-warn">{{ p.status_verificacao or 'PENDENTE' }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <form class="admin-inline-form" action="/admin/profissionais/{{ p.id_pessoa }}/status" method="post">
+                <select class="admin-select" name="status_verificacao" aria-label="Status de verificação">
+                  <option value="PENDENTE" {% if p.status_verificacao == 'PENDENTE' %}selected{% endif %}>PENDENTE</option>
+                  <option value="APROVADO" {% if p.status_verificacao == 'APROVADO' %}selected{% endif %}>APROVADO</option>
+                  <option value="REJEITADO" {% if p.status_verificacao == 'REJEITADO' %}selected{% endif %}>REJEITADO</option>
+                </select>
+                <button class="admin-btn" type="submit">Atualizar</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">Nenhum profissional cadastrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {% if aba_ativa == 'agendas' %}
+    <section class="admin-card">
+      <h2>Agendas e Eventos Cadastrados</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título / Tipo</th>
+            <th>Profissional</th>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in agendas %}
+          <tr>
+            <td>#{{ a.id_agenda }}</td>
+            <td>
+              <strong>{{ a.titulo }}</strong><br>
+              <small>{{ a.tipo_evento }}</small>
+            </td>
+            <td>{{ a.nome_profissional }}</td>
+            <td>{{ a.nome_cliente or 'Disponível / Aberto' }}</td>
+            <td>{{ a.data_evento }}</td>
+            <td>
+              {% if a.status in ['ATIVO', 'CONCLUIDO'] %}
+                <span class="admin-badge badge-ok">{{ a.status }}</span>
+              {% elif a.status == 'AGENDADO' %}
+                <span class="admin-badge badge-warn">{{ a.status }}</span>
+              {% else %}
+                <span class="admin-badge badge-danger">{{ a.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <form class="admin-inline-form" action="/admin/agendas/{{ a.id_agenda }}/status" method="post">
+                <select class="admin-select" name="status" aria-label="Status da agenda">
+                  <option value="ATIVO" {% if a.status == 'ATIVO' %}selected{% endif %}>ATIVO</option>
+                  <option value="AGENDADO" {% if a.status == 'AGENDADO' %}selected{% endif %}>AGENDADO</option>
+                  <option value="CONCLUIDO" {% if a.status == 'CONCLUIDO' %}selected{% endif %}>CONCLUIDO</option>
+                  <option value="CANCELADO" {% if a.status == 'CANCELADO' %}selected{% endif %}>CANCELADO</option>
+                </select>
+                <button class="admin-btn" type="submit">Salvar</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">Nenhum agendamento encontrado.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {% if aba_ativa == 'publicacoes' %}
+    <section class="admin-card">
+      <h2>Moderação de Publicações</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Autor</th>
+            <th>Conteúdo</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Moderação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pub in publicacoes %}
+          <tr>
+            <td>#{{ pub.id_publicacao }}</td>
+            <td><strong>{{ pub.nome_razao }}</strong></td>
+            <td>{{ pub.descricao }}</td>
+            <td>{{ pub.data_publicacao }}</td>
+            <td>
+              {% if pub.ativo == 1 %}
+                <span class="admin-badge badge-ok">Visível</span>
+              {% else %}
+                <span class="admin-badge badge-danger">Oculta</span>
+              {% endif %}
+            </td>
+            <td>
+              <form class="admin-inline-form" action="/admin/publicacoes/{{ pub.id_publicacao }}/status" method="post">
+                {% if pub.ativo == 1 %}
+                  <input type="hidden" name="ativo" value="0">
+                  <button class="admin-btn" style="background:#b91c1c;" type="submit">Ocultar</button>
+                {% else %}
+                  <input type="hidden" name="ativo" value="1">
+                  <button class="admin-btn" type="submit">Reativar</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">Nenhuma publicação encontrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+  </main>
+</body>
+
+</html>

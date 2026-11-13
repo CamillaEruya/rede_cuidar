@@ -1,0 +1,59 @@
+name: rede_cuidar
+
+services:
+  rede_cuidar_db:
+    image: rede_cuidar_db:latest
+    build: ./docker
+    container_name: rede_cuidar_db
+    restart: unless-stopped
+    env_file: ./rede_cuidar_api_backend/.env
+    entrypoint: ["/bin/sh", "/opt/rede-cuidar/database-entrypoint.sh"]
+    command: ["mariadbd"]
+    ports:
+      - "127.0.0.1:3308:3306"
+    volumes:
+      - banco_dados:/var/lib/mysql
+      - ./dump/rede_cuidar_mysql.sql:/opt/rede-cuidar/dump.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    networks: [rede_cuidar]
+
+  rede_cuidar_api:
+    image: rede_cuidar_api:latest
+    container_name: rede_cuidar_api
+    build: ./rede_cuidar_api_backend
+    restart: unless-stopped
+    env_file: ./rede_cuidar_api_backend/.env
+    ports: ["8001:8001"]
+    depends_on:
+      rede_cuidar_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [rede_cuidar]
+
+  rede_cuidar_web:
+    image: rede_cuidar_web:latest
+    container_name: rede_cuidar_web
+    build: ./rede_cuidar_app_frontend
+    restart: unless-stopped
+    env_file: ./rede_cuidar_app_frontend/.env
+    ports: ["8000:8000"]
+    depends_on:
+      rede_cuidar_api:
+        condition: service_healthy
+    networks: [rede_cuidar]
+
+networks:
+  rede_cuidar:
+    name: rede_cuidar
+
+volumes:
+  banco_dados:

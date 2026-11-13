@@ -43,3 +43,12 @@ def listar_rate_limits_excedidos(quantidade_acao: int) -> list[dict[str, Any]]:
             row_to_dict(row)
             for row in connection.execute(query, {"quantidade_acao": quantidade_acao})
         ]
+
+def cadastrar_rate_limit(tipo: str, data: str, email: str) -> None:
+    query = text("""
+        INSERT INTO rate_limit (email, tipo, data)
+        VALUES (:email, :tipo, :data)
+    """)
+
+    with engine.begin() as connection:
+        connection.execute(query, {"email": email or "", "tipo": tipo, "data": data})

@@ -11,21 +11,102 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261023-1">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
+  <style>
+    .professional-card--destaque {
+      border: 2px solid #0d9488 !important;
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 35%) !important;
+      box-shadow: 0 10px 26px rgba(13, 148, 136, 0.12) !important;
+    }
+    .destaque-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #0d9488;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .prof-contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .prof-whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #16a34a;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 7px 13px;
+      border-radius: 10px;
+    }
+    .prof-whatsapp-btn:hover {
+      background: #15803d;
+    }
+    .prof-portfolio-details {
+      margin-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+    }
+    .prof-portfolio-summary {
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f766e;
+      list-style: none;
+    }
+    .prof-portfolio-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .prof-portfolio-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .prof-portfolio-item h4 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+    .prof-portfolio-item p {
+      margin: 0 0 8px;
+      font-size: 0.88rem;
+      color: #475569;
+    }
+    .prof-portfolio-media img,
+    .prof-portfolio-media video {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+    }
+  </style>
 </head>
 
 <body class="feed-page">
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    {% include "partials/feed_navbar.html" %}
-
     <section class="professionals-page" aria-labelledby="professionals-title">
       <header class="profile-hero">
         <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
         <span class="section-kicker">Cuidado e conhecimento por perto</span>
         <h1 id="professionals-title">Encontre profissionais</h1>
-        <p>Conheça especialistas que podem apoiar você e sua família em cada etapa.</p>
+        <p>Conheça especialistas verificados que podem apoiar você e sua família em cada etapa.</p>
       </header>
 
       <div class="professionals-heading">
@@ -38,20 +119,72 @@
 
       <div class="professionals-list">
         {% for profissional in profissionais %}
-        <article class="professional-card">
+        <article class="professional-card {{ 'professional-card--destaque' if profissional.destaque else '' }}">
+          {% if profissional.destaque %}
+          <div>
+            <span class="destaque-badge">&#9733; Em Destaque · {{ profissional.campanha_plano or 'Patrocinado' }}</span>
+          </div>
+          {% endif %}
+
           <div class="professional-card-top">
             <span class="feed-avatar professional-avatar {{ profissional.avatar }}" aria-hidden="true">{{ profissional.iniciais }}</span>
-            <span class="professional-category">{{ profissional.categoria }}</span>
+            <span class="professional-category">{{ profissional.especialidade }}</span>
           </div>
           <h3>{{ profissional.nome }}</h3>
           <p class="professional-specialty">{{ profissional.especialidade }}</p>
           <p class="professional-description">{{ profissional.descricao }}</p>
           <p class="professional-location"><span aria-hidden="true">&#9906;</span> {{ profissional.localidade }}</p>
+          {% if profissional.inscricao_conselho %}
+          <p class="professional-location">Conselho: {{ profissional.inscricao_conselho }}</p>
+          {% endif %}
+
+          {% if profissional.telefone or profissional.whatsapp_url %}
+          <div class="prof-contact-row">
+            {% if profissional.whatsapp_url %}
+            <a class="prof-whatsapp-btn" href="{{ profissional.whatsapp_url }}" target="_blank" rel="noopener noreferrer">
+              Conversar no WhatsApp
+            </a>
+            {% elif profissional.telefone %}
+            <span class="professional-location">Tel: {{ profissional.telefone }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if profissional.divulgacoes %}
+          <details class="prof-portfolio-details">
+            <summary class="prof-portfolio-summary">
+              Ver trabalhos e serviços divulgados ({{ profissional.divulgacoes|length }}) &#9662;
+            </summary>
+            <div class="prof-portfolio-list">
+              {% for item in profissional.divulgacoes %}
+              <div class="prof-portfolio-item">
+                <h4>{{ item.titulo }}</h4>
+                <p>{{ item.descricao }}</p>
+                {% if item.midia_url %}
+                <div class="prof-portfolio-media">
+                  {% if item.midia_tipo == 'VIDEO' %}
+                  <video controls preload="metadata" src="{{ item.midia_url }}"></video>
+                  {% else %}
+                  <img src="{{ item.midia_url }}" alt="{{ item.titulo }}" loading="lazy">
+                  {% endif %}
+                </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </details>
+          {% endif %}
         </article>
+        {% else %}
+        {% if not profissionais_error %}
+        <p class="notice">Ainda não há profissionais aprovados para exibir.</p>
+        {% endif %}
         {% endfor %}
       </div>
 
-      <p class="professionals-note">Este catálogo é demonstrativo. As informações dos profissionais serão atualizadas em breve.</p>
+      {% if profissionais_error %}
+      <p class="notice error" role="alert">{{ profissionais_error }}</p>
+      {% endif %}
     </section>
   </main>
 </body>

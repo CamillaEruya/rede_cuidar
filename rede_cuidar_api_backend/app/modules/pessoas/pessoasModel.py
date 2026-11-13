@@ -10,6 +10,7 @@ def listar_pessoas(pessoa_id: int | None = None) -> list[dict[str, Any]]:
         table.c.id_tipo_pessoa, 
         table.c.id_tipo_perfil,
         table.c.nome_razao, 
+        table.c.foto_perfil,
         table.c.email, 
         table.c.cpf_cnpj, 
         table.c.ativo
@@ -44,6 +45,17 @@ def atualizar_pessoa(pessoa_id: int, data: dict[str, Any]) -> bool:
     with engine.begin() as connection:
         result = connection.execute(
             update(table).where(table.c.id_pessoa == pessoa_id).values(**data)
+        )
+        return result.rowcount > 0
+
+
+def atualizar_foto_perfil(pessoa_id: int, foto_perfil: str) -> bool:
+    table = get_table("pessoa")
+    with engine.begin() as connection:
+        result = connection.execute(
+            update(table)
+            .where(table.c.id_pessoa == pessoa_id)
+            .values(foto_perfil=foto_perfil)
         )
         return result.rowcount > 0
 

@@ -20,6 +20,45 @@ O cadastro usa os campos `id_tipo_pessoa`, `id_tipo_perfil` (opcional),
 `nome_razao`, `email`, `cpf_cnpj` e `ativo`. Cada pessoa pode ter um único perfil,
 referenciado diretamente por `id_tipo_perfil`.
 
+## Cadastro de profissional
+
+- `POST /api/profissional`: cadastra os dados profissionais de uma pessoa já
+  cadastrada. Cada pessoa pode ter um único cadastro profissional.
+- `GET /api/profissional/{id_pessoa}`: consulta os dados profissionais da pessoa
+  autenticada.
+- `GET /api/profissional`: lista os cadastros profissionais de pessoas ativas
+  para a comunidade autenticada.
+- `PUT /api/profissional/{id_pessoa}`: cria ou atualiza os dados profissionais da
+  pessoa autenticada.
+
+No POST, o corpo deve conter `id_pessoa`, `endereco`, `numero`, `cidade`, `estado`,
+`cep`, `telefone` e `descricao`. No PUT, envie os campos profissionais sem
+`id_pessoa`, que é obtido da URL. `inscricao_conselho` e `area_atuacao` são
+opcionais. `status_verificacao` não pode ser alterado pelo cliente; em um novo
+cadastro, inicia como `PENDENTE`.
+As rotas GET e PUT exigem token Bearer e só permitem consultar ou alterar o cadastro
+da própria pessoa. A rota PUT preserva o status de verificação já existente.
+O catálogo inclui todos os status de verificação das pessoas ativas.
+
+## Publicações do feed
+
+- `GET /api/publicacoes`: lista as publicações de pessoas ativas.
+- `POST /api/publicacoes`: cria uma publicação para a pessoa autenticada. Envie
+  `descricao` (até 1000 caracteres) e, opcionalmente, `foto` como caminho; é necessário
+  informar o cabeçalho `X-User-ID` e um token Bearer.
+- `POST /api/publicacoes/com-foto`: cria uma publicação com upload multipart
+  (`descricao` opcional e `foto` obrigatória). Aceita JPG, PNG, GIF e WebP de
+  até 5 MB; salva a imagem em `app/uploads/publicacoes` e registra o caminho
+  em `publicacao.foto`.
+- `PUT /api/publicacoes/{id_publicacao}` e
+  `DELETE /api/publicacoes/{id_publicacao}`: atualizam ou desativam uma
+  publicação pertencente à pessoa autenticada.
+
+`PUT /api/pessoas/{id_pessoa}/foto-perfil` recebe o campo multipart `foto`,
+autenticado com token Bearer, e atualiza `pessoa.foto_perfil`. A foto é
+armazenada em `app/uploads/perfis` e pode ser exibida como avatar; sem foto, o
+frontend mantém as iniciais da pessoa.
+
 Instale as dependências:
 
 ```bash
@@ -29,7 +68,7 @@ python -m pip install -r requirements.txt
 Execute:
 
 ```bash
-python run.py
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 A API Python ficará disponível em `http://localhost:8001`, com documentação em `/docs`.
@@ -50,5 +89,10 @@ e `DB_DATABASE=database.sqlite`; o arquivo do banco local não é incluído no p
 
 ## Configuração do banco
 
-A conexão usa as variáveis do `.env`; as tabelas precisam existir no banco. O script
-`database.sql` contém a estrutura das tabelas e os dados iniciais de tipos e perfis.
+A conexão usa as variáveis do `.env`. As tabelas necessárias devem existir no banco
+MySQL antes de iniciar a API.
+
+Para habilitar as fotos de perfil, aplique uma vez a migração
+`migrations/20261110_add_foto_perfil_to_pessoa.sql` no banco configurado. Ela
+adiciona a coluna opcional `pessoa.foto_perfil`; as imagens enviadas ficam em
+`app/uploads/perfis` e são servidas pela rota `/uploads`.

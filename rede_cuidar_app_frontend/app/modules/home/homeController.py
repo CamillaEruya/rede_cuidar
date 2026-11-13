@@ -28,10 +28,17 @@ async def listar_tipos_perfil() -> list[dict[str, Any]]:
 
     if not isinstance(payload, list):
         return []
-    return [perfil for perfil in payload if isinstance(perfil, dict)]
+    return [
+        perfil
+        for perfil in payload
+        if isinstance(perfil, dict) and perfil.get("id_tipo_perfil") != 9
+    ]
 
 
 async def cadastrar_pessoa(data: dict[str, Any]) -> tuple[bool, str]:
+    if int(data.get("id_tipo_perfil", 0)) == 9:
+        return False, "Tipo de perfil inválido para cadastro público."
+
     try:
         async with httpx.AsyncClient(base_url=API_BASE_URL, timeout=8.0) as client:
             response = await client.post("/api/pessoas", json=data)
@@ -51,17 +58,28 @@ async def logar(request: Request, data: dict[str, Any]) -> tuple[bool, str]:
     try:
         async with httpx.AsyncClient(base_url=API_BASE_URL, timeout=8.0) as client:
             response = await client.post("/api/user/login", json=data)
+            if response.is_success:
+                payload = response.json()
+                id_pessoa = payload.get("id_pessoa")
+                id_tipo_perfil = payload.get("id_tipo_perfil")
+
+                if id_tipo_perfil is None and id_pessoa is not None:
+                    res_pessoa = await client.get(f"/api/pessoas/{id_pessoa}")
+                    if res_pessoa.is_success:
+                        dados_pessoa = res_pessoa.json()
+                        if isinstance(dados_pessoa, list) and dados_pessoa:
+                            id_tipo_perfil = dados_pessoa[0].get("id_tipo_perfil")
+                        elif isinstance(dados_pessoa, dict):
+                            id_tipo_perfil = dados_pessoa.get("id_tipo_perfil")
+
+                request.session["id_pessoa"] = id_pessoa
+                request.session["token"] = payload.get("token")
+                request.session["nome_razao"] = payload.get("nome_razao")
+                request.session["id_tipo_perfil"] = id_tipo_perfil
+
+                return True, "Login realizado com sucesso. Bem-vindo à rede."
     except httpx.RequestError:
         return False, "Não foi possível conectar ao servidor. Verifique se a API está ativa."
-
-    if response.is_success:
-        payload = response.json()
-
-        request.session["id_pessoa"] = payload.get("id_pessoa")
-        request.session["token"] = payload.get("token")
-        request.session["nome_razao"] = payload.get("nome_razao")
-
-        return True, "Login realizado com sucesso. Bem-vindo à rede."
 
     detail = response.json().get("detail") if response.content else None
     if isinstance(detail, str):

@@ -1,8 +1,11 @@
 from pathlib import Path
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from typing import Annotated, Any
+
+from fastapi import APIRouter, File, Form, Request, UploadFile
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
+from app.modules.feed import feedController
 from app.modules.perfil.perfilController import perfil_context
 from app.modules.user import userController
 
@@ -16,14 +19,26 @@ templates = Jinja2Templates(
 )
 
 
+async def _feed_context(request: Request) -> dict[str, Any]:
+    context = await perfil_context(request)
+    publicacoes, feed_error = await feedController.listar_publicacoes(request)
+    context["publicacoes"] = publicacoes
+    context["feed_error"] = feed_error
+    context["descricao_publicacao"] = ""
+    return context
+
+
 @router.get("/", response_class=HTMLResponse)
 async def timeline(request: Request) -> HTMLResponse:
-    success, message = await userController.autenticar(request)
+    success, _ = await userController.autenticar(request)
 
     if not success:
         return RedirectResponse(url="/", status_code=303)
 
-    context = await perfil_context(request)
+    context = await _feed_context(request)
+    if request.query_params.get("publicado") == "1":
+        context["message_publicacao"] = "Publicação compartilhada com sucesso."
+        context["message_type_publicacao"] = "success"
 
     return templates.TemplateResponse(
         request=request,
@@ -32,14 +47,44 @@ async def timeline(request: Request) -> HTMLResponse:
     )
 
 
+@router.post("/publicar", response_class=HTMLResponse)
+async def publicar(
+    request: Request,
+    descricao: Annotated[str, Form()] = "",
+    foto: Annotated[UploadFile | None, File()] = None,
+) -> Response:
+    autenticado, _ = await userController.autenticar(request)
+    if not autenticado:
+        return RedirectResponse(url="/", status_code=303)
+
+    success, message = await feedController.criar_publicacao(
+        request,
+        descricao,
+        foto,
+    )
+    if success:
+        return RedirectResponse(url="/feed/?publicado=1", status_code=303)
+
+    context = await _feed_context(request)
+    context["descricao_publicacao"] = descricao
+    context["message_publicacao"] = message
+    context["message_type_publicacao"] = "error"
+    return templates.TemplateResponse(
+        request=request,
+        name="feed.html",
+        context=context,
+        status_code=400,
+    )
+
+
 @router.get("/feed")
 async def feed(request: Request):
-    success, message = await userController.autenticar(request)
+    success, _ = await userController.autenticar(request)
 
     if not success:
         return RedirectResponse(url="/", status_code=303)
 
-    context = await perfil_context(request)
+    context = await _feed_context(request)
 
     return templates.TemplateResponse(
         request=request,

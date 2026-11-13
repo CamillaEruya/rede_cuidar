@@ -12,6 +12,7 @@ from app.modules.perfil.perfilRoutes import router as perfil_router
 from app.modules.agenda.agendaRoutes import router as agenda_router
 from app.modules.profissionais.profissionaisRoutes import router as profissionais_router
 from app.modules.biblioteca.bibliotecaRoutes import router as biblioteca_router
+from app.modules.admin.adminRoutes import router as admin_router
 
 load_dotenv()
 
@@ -30,6 +31,7 @@ app.include_router(perfil_router)
 app.include_router(agenda_router)
 app.include_router(profissionais_router)
 app.include_router(biblioteca_router)
+app.include_router(admin_router)
 
 
 @app.get("/health")
