@@ -1,9 +1,9 @@
-
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
+from app.core.image_upload import remove_stored_media
 from app.modules.profissional import profissionalModel as model
 from app.modules.user import userController
 
@@ -18,6 +18,30 @@ PROFISSIONAL_FIELDS = {
     "descricao": None,
     "inscricao_conselho": 50,
     "area_atuacao": 150,
+}
+
+PLANOS_CAMPANHA: dict[str, dict[str, Any]] = {
+    "impulso_7": {
+        "codigo": "impulso_7",
+        "nome": "Impulso Semanal",
+        "dias": 7,
+        "valor": 29.90,
+        "descricao": "Seu perfil no topo da vitrine de profissionais por 7 dias com selo Destaque.",
+    },
+    "impulso_15": {
+        "codigo": "impulso_15",
+        "nome": "Destaque Quinzenal",
+        "dias": 15,
+        "valor": 49.90,
+        "descricao": "15 dias sempre à frente nas buscas e prioridade sobre planos semanais.",
+    },
+    "impulso_30": {
+        "codigo": "impulso_30",
+        "nome": "Liderança Mensal",
+        "dias": 30,
+        "valor": 89.90,
+        "descricao": "Máxima visibilidade por 30 dias seguidos no topo absoluto da Rede Cuidar.",
+    },
 }
 
 
@@ -195,4 +219,148 @@ def put_profissional(
         "message": message,
         "id_profissional": profissional_id,
         "status_verificacao": status_verificacao,
+    }
+
+
+def validar_profissional_aprovado(pessoa_id: int, token: str) -> dict[str, Any]:
+    userController.autenticar(pessoa_id, token)
+    profissional = model.buscar_profissional(pessoa_id)
+    if profissional is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Cadastro profissional não encontrado. Complete seus dados profissionais no Perfil.",
+        )
+    if profissional.get("status_verificacao") != "APROVADO":
+        raise HTTPException(
+            status_code=403,
+            detail="Seu perfil profissional está aguardando aprovação do administrador. Enquanto isso, o painel permanece estático.",
+        )
+    return profissional
+
+
+def get_painel_profissional(pessoa_id: int, token: str) -> dict[str, Any]:
+    userController.autenticar(pessoa_id, token)
+    profissional = model.buscar_profissional(pessoa_id)
+
+    if profissional is None:
+        return {
+            "cadastrado": False,
+            "aprovado": False,
+            "status_verificacao": "NAO_CADASTRADO",
+            "profissional": None,
+            "divulgacoes": [],
+            "campanhas": [],
+            "campanha_ativa": None,
+            "planos": list(PLANOS_CAMPANHA.values()),
+        }
+
+    id_profissional = profissional["id_profissional"]
+    aprovado = profissional.get("status_verificacao") == "APROVADO"
+    divulgacoes = model.listar_divulgacoes_profissional(id_profissional)
+    campanhas = model.listar_campanhas_profissional(id_profissional)
+    campanha_ativa = next((c for c in campanhas if c.get("status") == "ATIVA"), None)
+
+    return {
+        "cadastrado": True,
+        "aprovado": aprovado,
+        "status_verificacao": profissional.get("status_verificacao", "PENDENTE"),
+        "profissional": profissional,
+        "divulgacoes": divulgacoes,
+        "campanhas": campanhas,
+        "campanha_ativa": campanha_ativa,
+        "planos": list(PLANOS_CAMPANHA.values()),
+    }
+
+
+def criar_divulgacao(
+    pessoa_id: int,
+    token: str,
+    titulo: str,
+    descricao: str,
+    midia_url: Optional[str] = None,
+    midia_tipo: Optional[str] = None,
+) -> dict[str, Any]:
+    profissional = validar_profissional_aprovado(pessoa_id, token)
+
+    titulo_limpo = (titulo or "").strip()
+    descricao_limpa = (descricao or "").strip()
+
+    if not titulo_limpo or len(titulo_limpo) > 150:
+        raise HTTPException(
+            status_code=400,
+            detail="Informe um título válido (até 150 caracteres).",
+        )
+    if not descricao_limpa:
+        raise HTTPException(
+            status_code=400,
+            detail="A descrição do trabalho/serviço é obrigatória.",
+        )
+
+    id_divulgacao = model.criar_divulgacao_profissional(
+        id_profissional=profissional["id_profissional"],
+        titulo=titulo_limpo,
+        descricao=descricao_limpa,
+        midia_url=midia_url,
+        midia_tipo=midia_tipo,
+    )
+    return {
+        "success": True,
+        "message": "Trabalho publicado no seu portfólio com sucesso!",
+        "id_divulgacao": id_divulgacao,
+    }
+
+
+def excluir_divulgacao(
+    pessoa_id: int,
+    token: str,
+    id_divulgacao: int,
+) -> dict[str, Any]:
+    profissional = validar_profissional_aprovado(pessoa_id, token)
+    id_profissional = profissional["id_profissional"]
+
+    item = model.buscar_divulgacao(id_divulgacao, id_profissional)
+    if item is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Publicação não encontrada no seu portfólio.",
+        )
+
+    midia_url = item.get("midia_url")
+    ok = model.excluir_divulgacao_profissional(id_divulgacao, id_profissional)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Não foi possível excluir a publicação.")
+
+    if midia_url:
+        remove_stored_media(midia_url)
+
+    return {
+        "success": True,
+        "message": "Divulgação removida com sucesso.",
+    }
+
+
+def contratar_campanha(
+    pessoa_id: int,
+    token: str,
+    plano_codigo: str,
+) -> dict[str, Any]:
+    profissional = validar_profissional_aprovado(pessoa_id, token)
+    plano = PLANOS_CAMPANHA.get((plano_codigo or "").strip())
+
+    if plano is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Plano de campanha inválido.",
+        )
+
+    id_campanha = model.criar_campanha_profissional(
+        id_profissional=profissional["id_profissional"],
+        plano_nome=plano["nome"],
+        dias=plano["dias"],
+        valor=plano["valor"],
+    )
+    return {
+        "success": True,
+        "message": f"Campanha '{plano['nome']}' ({plano['dias']} dias) ativada! Seu perfil já está em destaque no topo.",
+        "id_campanha": id_campanha,
     }
