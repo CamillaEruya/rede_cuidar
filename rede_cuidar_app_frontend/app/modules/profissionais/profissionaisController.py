@@ -13,6 +13,7 @@ async def profissionais_context(request: Request) -> dict[str, Any]:
     token = request.session.get("token")
     profissionais: list[dict[str, Any]] = []
     profissionais_error = None
+    categorias_por_chave: dict[str, str] = {}
 
     try:
         async with httpx.AsyncClient(base_url=API_BASE_URL, timeout=8.0) as client:
@@ -34,10 +35,18 @@ async def profissionais_context(request: Request) -> dict[str, Any]:
         for index, profissional in enumerate(payload):
             nome = profissional.get("nome_razao") or "Profissional"
             iniciais = "".join(parte[0] for parte in nome.split()[:2]).upper()
+            area_atuacao = profissional.get("area_atuacao")
+            categoria = (
+                area_atuacao.strip()
+                if isinstance(area_atuacao, str) and area_atuacao.strip()
+                else "Outros"
+            )
+            categorias_por_chave.setdefault(categoria.casefold(), categoria)
             profissionais.append(
                 {
                     "nome": nome,
                     "iniciais": iniciais or "PR",
+                    "categoria": categoria,
                     "especialidade": profissional.get("area_atuacao")
                     or profissional.get("inscricao_conselho")
                     or "Profissional",
@@ -73,5 +82,6 @@ async def profissionais_context(request: Request) -> dict[str, Any]:
         "nome_razao": nome_razao,
         "icon_nome_razao": userController.iconAvatar(nome_razao) if nome_razao else "",
         "profissionais": profissionais,
+        "categorias": sorted(categorias_por_chave.values(), key=str.casefold),
         "profissionais_error": profissionais_error,
     }
