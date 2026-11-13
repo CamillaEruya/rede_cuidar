@@ -11,7 +11,110 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261112-4">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261110-3">
+  <style>
+    .admin-agenda-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+    .admin-agenda-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .admin-agenda-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .admin-agenda-field input,
+    .admin-agenda-field select,
+    .admin-agenda-field textarea {
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+    .admin-btn-primary {
+      background: #0d9488;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .admin-btn-secondary {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .admin-btn-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .admin-btn-danger:hover {
+      background: #fecaca;
+    }
+    .agenda-media-box {
+      margin: 12px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      max-width: 100%;
+    }
+    .agenda-media-box img,
+    .agenda-media-box video {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+    }
+    .agenda-admin-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .flash-banner {
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+    .flash-success { background: #dcfce7; color: #166534; }
+    .flash-error { background: #fee2e2; color: #991b1b; }
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+  </style>
 </head>
 
 <body class="feed-page">
@@ -26,6 +129,50 @@
         <p>Encontros, conversas e atividades para caminharmos juntos.</p>
       </header>
 
+      {% if flash_msg %}
+      <div class="flash-banner {{ 'flash-error' if flash_type == 'error' else 'flash-success' }}">
+        {{ flash_msg }}
+      </div>
+      {% endif %}
+
+      {% if eh_admin %}
+      <div class="admin-agenda-card">
+        <span class="section-kicker">Painel do Administrador</span>
+        <h2 style="margin: 4px 0 8px;">Publicar novo evento na agenda</h2>
+        <form method="post" action="/agenda/novo" enctype="multipart/form-data">
+          <div class="admin-agenda-grid">
+            <label class="admin-agenda-field">
+              Título do evento
+              <input type="text" name="titulo" required placeholder="Ex: Roda de conversa com famílias">
+            </label>
+            <label class="admin-agenda-field">
+              Categoria / Tipo
+              <select name="tipo_evento">
+                <option value="Comunidade">Comunidade</option>
+                <option value="Palestra">Palestra</option>
+                <option value="Encontro">Encontro</option>
+              </select>
+            </label>
+            <label class="admin-agenda-field">
+              Data e horário
+              <input type="datetime-local" name="data_evento" required>
+            </label>
+            <label class="admin-agenda-field">
+              Imagem ou vídeo (opcional)
+              <input type="file" name="midia" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime">
+            </label>
+          </div>
+          <div class="admin-agenda-field" style="margin-top: 12px;">
+            Descrição
+            <textarea name="descricao" rows="2" required placeholder="Detalhes sobre o encontro, público e orientações..."></textarea>
+          </div>
+          <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="admin-btn-primary">+ Publicar na Agenda</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
       <div class="agenda-heading">
         <div>
           <span class="section-kicker">Reserve um momento para você</span>
@@ -35,26 +182,103 @@
       </div>
 
       <div class="agenda-events">
-        {% for evento in eventos %}
-        <article class="agenda-event">
-          <div class="agenda-date {{ evento.cor }}" aria-label="{{ evento.dia }} de {{ evento.mes }}">
-            <strong>{{ evento.dia }}</strong>
-            <span>{{ evento.mes }}</span>
-          </div>
-          <div class="agenda-event-content">
-            <div class="agenda-event-meta">
-              <span>{{ evento.dia_semana }} · {{ evento.horario }}</span>
-              <span class="agenda-event-type">{{ evento.tipo }}</span>
+        {% if eventos %}
+          {% for evento in eventos %}
+          <article class="agenda-event">
+            <div class="agenda-date {{ evento.cor }}" aria-label="{{ evento.dia }} de {{ evento.mes }}">
+              <strong>{{ evento.dia }}</strong>
+              <span>{{ evento.mes }}</span>
             </div>
-            <h3>{{ evento.titulo }}</h3>
-            <p>{{ evento.descricao }}</p>
-            <span class="agenda-event-location"><span aria-hidden="true">&#9906;</span> {{ evento.local }}</span>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
+            <div class="agenda-event-content" style="width: 100%;">
+              <div class="agenda-event-meta">
+                <span>{{ evento.dia_semana }} · {{ evento.horario }}</span>
+                <span class="agenda-event-type">{{ evento.tipo }}</span>
+                {% if eh_admin %}
+                <span class="status-badge">{{ evento.status }}</span>
+                {% endif %}
+              </div>
+              <h3>{{ evento.titulo }}</h3>
+              <p>{{ evento.descricao }}</p>
 
-      <p class="professionals-note">Esta agenda é demonstrativa. Datas e eventos serão atualizados em breve.</p>
+              {% if evento.midia_url %}
+              <div class="agenda-media-box">
+                {% if evento.midia_tipo == 'VIDEO' %}
+                <video controls preload="metadata" src="{{ evento.midia_url }}">
+                  Seu navegador não suporta a reprodução de vídeo.
+                </video>
+                {% else %}
+                <img src="{{ evento.midia_url }}" alt="Mídia do evento {{ evento.titulo }}" loading="lazy">
+                {% endif %}
+              </div>
+              {% endif %}
+
+              <span class="agenda-event-location"><span aria-hidden="true">&#9906;</span> {{ evento.local }}</span>
+
+              {% if eh_admin %}
+              <div class="agenda-admin-actions">
+                <form method="post" action="/agenda/{{ evento.id_agenda }}/excluir" onsubmit="return confirm('Tem certeza que deseja excluir esta publicação da agenda?');">
+                  <button type="submit" class="admin-btn-danger">Excluir publicação</button>
+                </form>
+
+                <details style="width: 100%;">
+                  <summary class="admin-btn-secondary" style="display: inline-block;">Editar evento</summary>
+                  <form method="post" action="/agenda/{{ evento.id_agenda }}/editar" enctype="multipart/form-data" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                    <div class="admin-agenda-grid">
+                      <label class="admin-agenda-field">
+                        Título
+                        <input type="text" name="titulo" value="{{ evento.titulo }}" required>
+                      </label>
+                      <label class="admin-agenda-field">
+                        Tipo
+                        <select name="tipo_evento">
+                          <option value="Comunidade" {{ 'selected' if evento.tipo == 'Comunidade' else '' }}>Comunidade</option>
+                          <option value="Palestra" {{ 'selected' if evento.tipo == 'Palestra' else '' }}>Palestra</option>
+                          <option value="Encontro" {{ 'selected' if evento.tipo == 'Encontro' else '' }}>Encontro</option>
+                        </select>
+                      </label>
+                      <label class="admin-agenda-field">
+                        Data e horário
+                        <input type="datetime-local" name="data_evento" value="{{ evento.data_iso }}" required>
+                      </label>
+                      <label class="admin-agenda-field">
+                        Status
+                        <select name="status">
+                          <option value="ATIVO" {{ 'selected' if evento.status == 'ATIVO' else '' }}>ATIVO (Visível)</option>
+                          <option value="CONCLUIDO" {{ 'selected' if evento.status == 'CONCLUIDO' else '' }}>CONCLUÍDO</option>
+                          <option value="CANCELADO" {{ 'selected' if evento.status == 'CANCELADO' else '' }}>CANCELADO (Oculto)</option>
+                        </select>
+                      </label>
+                      <label class="admin-agenda-field">
+                        Substituir imagem ou vídeo
+                        <input type="file" name="midia" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime">
+                      </label>
+                    </div>
+
+                    {% if evento.midia_url %}
+                    <label style="display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 0.88rem; color: #b91c1c; font-weight: 600;">
+                      <input type="checkbox" name="remover_midia" value="true">
+                      Remover mídia atual deste evento
+                    </label>
+                    {% endif %}
+
+                    <div class="admin-agenda-field" style="margin-top: 10px;">
+                      Descrição
+                      <textarea name="descricao" rows="2" required>{{ evento.descricao }}</textarea>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+                      <button type="submit" class="admin-btn-primary">Salvar alterações</button>
+                    </div>
+                  </form>
+                </details>
+              </div>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+        {% else %}
+          <p class="professionals-note">Nenhum evento agendado no momento.</p>
+        {% endif %}
+      </div>
     </section>
   </main>
 </body>

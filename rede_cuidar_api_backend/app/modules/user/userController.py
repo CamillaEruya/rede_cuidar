@@ -72,5 +72,6 @@ def post_login(data: dict[str, Any]) -> dict[str, Any]:
         "message": "Seja bem-vindo A Rede Atipic.",
         "token": token,
         "id_pessoa": result[0].get("id_pessoa"),
-        "nome_razao": result[0].get("nome_razao")
+        "nome_razao": result[0].get("nome_razao"),
+        "id_tipo_perfil": result[0].get("id_tipo_perfil")
     }

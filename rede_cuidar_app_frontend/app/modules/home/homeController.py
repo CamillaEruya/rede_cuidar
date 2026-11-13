@@ -60,6 +60,7 @@ async def logar(request: Request, data: dict[str, Any]) -> tuple[bool, str]:
         request.session["id_pessoa"] = payload.get("id_pessoa")
         request.session["token"] = payload.get("token")
         request.session["nome_razao"] = payload.get("nome_razao")
+        request.session["id_tipo_perfil"] = payload.get("id_tipo_perfil")
 
         return True, "Login realizado com sucesso. Bem-vindo à rede."
 

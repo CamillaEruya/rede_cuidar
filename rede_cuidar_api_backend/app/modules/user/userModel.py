@@ -11,7 +11,8 @@ def listar_login(data: dict[str, Any]) -> list[dict[str, Any]]:
         table.c.email,
         table.c.senha,
         table.c.chave,
-        table.c.nome_razao
+        table.c.nome_razao,
+        table.c.id_tipo_perfil
     )
 
     if 'email' in data:
