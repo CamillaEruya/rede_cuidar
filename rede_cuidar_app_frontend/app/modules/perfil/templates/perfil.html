@@ -11,15 +11,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261009-1">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261111-1">
 </head>
 
-<body class="feed-page">
+<body class="feed-page"{% if open_professional_modal %} data-open-professional-modal="true"{% endif %}>
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    {% include "partials/feed_navbar.html" %}
-
     <section class="profile-page" aria-labelledby="profile-title">
       <header class="profile-hero">
         <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
@@ -30,16 +28,35 @@
 
       <article class="profile-card">
         <header class="profile-card-header">
-          <span class="feed-avatar avatar-lilac profile-avatar" aria-hidden="true">{{ icon_nome_razao }}</span>
+          <span class="feed-avatar avatar-lilac profile-avatar" aria-hidden="true">
+            {% if foto_perfil_url %}
+            <img src="{{ foto_perfil_url }}" alt="">
+            {% else %}
+            {{ icon_nome_razao }}
+            {% endif %}
+          </span>
           <div class="profile-heading">
             <span class="section-kicker">Bem-vinda(o) à Rede Cuidar</span>
             <h2>{{ nome_razao }}</h2>
           </div>
-          <button class="secondary-button" type="button" data-open-modal
+          <button class="secondary-button" type="button" data-open-modal="profile-edit-modal"
+            aria-label="Editar dados da conta"
             style="width: auto; flex: 0 0 auto; margin-left: auto; padding-left: 15px; padding-right: 15px;">
             <span aria-hidden="true">&#9998;</span>
           </button>
         </header>
+        {% if message_foto_perfil %}
+        <p class="notice {{ message_type_foto_perfil }}" role="{% if message_type_foto_perfil == 'error' %}alert{% else %}status{% endif %}">
+          {{ message_foto_perfil }}
+        </p>
+        {% endif %}
+        <form action="/perfil/foto" method="post" enctype="multipart/form-data" class="profile-photo-form">
+          <label for="profile-photo">Foto de perfil (JPG, PNG, GIF ou WebP; até 5 MB)</label>
+          <div>
+            <input id="profile-photo" name="foto" type="file" accept="image/jpeg,image/png,image/gif,image/webp" required>
+            <button class="secondary-button" type="submit">Atualizar foto</button>
+          </div>
+        </form>
 
         <dl class="profile-details">
           <div class="profile-detail">
@@ -70,10 +87,35 @@
         </a>
         </footer>
       </article>
+
+    {% if is_cnpj %}
+    <article class="professional-profile-card">
+      <div>
+        <span class="section-kicker">Perfil profissional</span>
+        <h2>Dados profissionais</h2>
+        {% if profissional_cadastrado %}
+        <p>Status da verificação: <strong>{{ profissional.status_verificacao }}</strong></p>
+        {% else %}
+        <p>Complete os dados profissionais para apresentar sua atuação na rede.</p>
+        {% endif %}
+        {% if profissional_error %}
+        <p class="notice error" role="alert">{{ profissional_error }}</p>
+        {% endif %}
+        {% if message_profissional %}
+        <p class="notice {{ message_type_profissional }}" role="status">{{ message_profissional }}</p>
+        {% endif %}
+      </div>
+      <button class="secondary-button" type="button" data-open-modal="professional-edit-modal">
+        {% if profissional_cadastrado %}Atualizar dados profissionais{% else %}Cadastrar dados profissionais{% endif %}
+        <span aria-hidden="true">&#9998;</span>
+      </button>
+    </article>
+    {% endif %}
+
     </section>
   </main>
 
-  <div class="modal-backdrop" data-modal aria-hidden="true">
+  <div class="modal-backdrop" data-modal="profile" id="profile-edit-modal" aria-hidden="true">
     <section class="register-modal" role="dialog" aria-modal="true" aria-labelledby="edit-profile-title">
       <button class="close-button" type="button" data-close-modal aria-label="Fechar edição">&times;</button>
       <span class="section-kicker">Seu espaço na rede</span>
@@ -127,7 +169,79 @@
       </form>
     </section>
   </div>
-  <script src="{{ url_for('static', path='js/app.js') }}"></script>
+
+  {% if is_cnpj %}
+  <div class="modal-backdrop" data-modal="professional" id="professional-edit-modal" aria-hidden="true">
+    <section class="register-modal" role="dialog" aria-modal="true" aria-labelledby="professional-modal-title">
+      <button class="close-button" type="button" data-close-modal aria-label="Fechar dados profissionais">&times;</button>
+      <span class="section-kicker">Perfil profissional</span>
+      <h2 id="professional-modal-title">Dados profissionais</h2>
+      <p class="modal-intro">Preencha as informações que serão salvas no seu cadastro profissional.</p>
+      <button class="secondary-button" type="button" disabled>Ver plano</button>
+      {% if message_profissional %}
+      <p class="notice {{ message_type_profissional }}" role="alert">{{ message_profissional }}</p>
+      {% endif %}
+      <form action="/perfil/profissional/atualizar" method="post" class="register-form">
+        <div class="form-grid">
+          <div>
+            <label for="professional-address">Endereço</label>
+            <input id="professional-address" name="endereco" type="text" maxlength="200"
+              value="{{ profissional.endereco }}" required>
+          </div>
+          <div>
+            <label for="professional-number">Número</label>
+            <input id="professional-number" name="numero" type="text" maxlength="20"
+              value="{{ profissional.numero }}" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="professional-city">Cidade</label>
+            <input id="professional-city" name="cidade" type="text" maxlength="100"
+              value="{{ profissional.cidade }}" required>
+          </div>
+          <div>
+            <label for="professional-state">Estado</label>
+            <input id="professional-state" name="estado" type="text" maxlength="2" minlength="2"
+              pattern="[A-Za-z]{2}" value="{{ profissional.estado }}" placeholder="SP" required>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="professional-cep">CEP</label>
+            <input id="professional-cep" name="cep" type="text" inputmode="numeric" maxlength="9"
+              pattern="[0-9]{5}-?[0-9]{3}" value="{{ profissional.cep }}" placeholder="00000-000" required>
+          </div>
+          <div>
+            <label for="professional-phone">Telefone</label>
+            <input id="professional-phone" name="telefone" type="tel" maxlength="20"
+              value="{{ profissional.telefone }}" required>
+          </div>
+        </div>
+        <label for="professional-description">Descrição</label>
+        <textarea id="professional-description" name="descricao" rows="4" required>{{ profissional.descricao }}</textarea>
+        <div class="form-grid">
+          <div>
+            <label for="professional-council">Inscrição no conselho</label>
+            <input id="professional-council" name="inscricao_conselho" type="text" maxlength="50"
+              value="{{ profissional.inscricao_conselho }}">
+          </div>
+          <div>
+            <label for="professional-area">Área de atuação</label>
+            <input id="professional-area" name="area_atuacao" type="text" maxlength="150"
+              value="{{ profissional.area_atuacao }}">
+          </div>
+        </div>
+        <button class="primary-button" type="submit">
+          {% if profissional_cadastrado %}Atualizar cadastro{% else %}Salvar cadastro{% endif %}
+          <span>&rarr;</span>
+        </button>
+      </form>
+    </section>
+  </div>
+  {% endif %}
+
+  <script src="{{ url_for('static', path='js/app.js') }}?v=20261109-2"></script>
 </body>
 
 </html>

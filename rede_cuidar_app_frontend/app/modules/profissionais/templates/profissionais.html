@@ -11,15 +11,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261023-1">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=20261112-5">
 </head>
 
 <body class="feed-page">
   {% include "partials/feed_topbar.html" %}
 
   <main class="feed-main">
-    {% include "partials/feed_navbar.html" %}
-
     <section class="professionals-page" aria-labelledby="professionals-title">
       <header class="profile-hero">
         <span class="profile-hero-icon" aria-hidden="true">&#10022;</span>
@@ -33,27 +31,63 @@
           <span class="section-kicker">Conexões que acolhem</span>
           <h2>Profissionais em destaque</h2>
         </div>
-        <span class="professionals-count">{{ profissionais|length }} profissionais</span>
+        <span class="professionals-count" data-professionals-count>
+          {{ profissionais|length }} profissionais
+        </span>
       </div>
+
+      {% if profissionais %}
+      <div class="professionals-filters">
+        <label class="professionals-search" for="professionals-search">
+          <span>Buscar profissional</span>
+          <input id="professionals-search" type="search" data-professionals-search
+            placeholder="Nome, especialidade ou localidade" autocomplete="off">
+        </label>
+        <div class="professionals-categories" role="group" aria-label="Filtrar por categoria">
+          <button class="professional-category-filter is-active" type="button"
+            data-professional-category="all" aria-pressed="true">Todas</button>
+          {% for categoria in categorias %}
+          <button class="professional-category-filter" type="button"
+            data-professional-category="{{ categoria }}" aria-pressed="false">{{ categoria }}</button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
 
       <div class="professionals-list">
         {% for profissional in profissionais %}
-        <article class="professional-card">
+        <article class="professional-card" data-professional-card
+          data-category="{{ profissional.categoria }}">
           <div class="professional-card-top">
             <span class="feed-avatar professional-avatar {{ profissional.avatar }}" aria-hidden="true">{{ profissional.iniciais }}</span>
-            <span class="professional-category">{{ profissional.categoria }}</span>
+            <span class="professional-category">{{ profissional.especialidade }}</span>
           </div>
           <h3>{{ profissional.nome }}</h3>
           <p class="professional-specialty">{{ profissional.especialidade }}</p>
           <p class="professional-description">{{ profissional.descricao }}</p>
           <p class="professional-location"><span aria-hidden="true">&#9906;</span> {{ profissional.localidade }}</p>
+          {% if profissional.inscricao_conselho %}
+          <p class="professional-location">Conselho: {{ profissional.inscricao_conselho }}</p>
+          {% endif %}
         </article>
+        {% else %}
+        {% if not profissionais_error %}
+        <p class="notice">Ainda não há profissionais aprovados para exibir.</p>
+        {% endif %}
         {% endfor %}
       </div>
+      {% if profissionais %}
+      <p class="notice" data-professionals-empty hidden>
+        Nenhum profissional encontrado com esses filtros.
+      </p>
+      {% endif %}
 
-      <p class="professionals-note">Este catálogo é demonstrativo. As informações dos profissionais serão atualizadas em breve.</p>
+      {% if profissionais_error %}
+      <p class="notice error" role="alert">{{ profissionais_error }}</p>
+      {% endif %}
     </section>
   </main>
+  <script src="{{ url_for('static', path='js/profissionais.js') }}?v=20261112-1"></script>
 </body>
 
 </html>

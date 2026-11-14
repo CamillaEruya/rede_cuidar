@@ -4,6 +4,9 @@ from typing import Any
 from dotenv import load_dotenv
 from pathlib import Path
 from fastapi import HTTPException
+from fastapi import UploadFile
+from sqlalchemy.exc import SQLAlchemyError
+from app.core.image_upload import store_image
 from app.modules.pessoas import pessoasModel as model
 from app.core.validacao import cpf_cnpj_valido
 from app.core.criptografa import hash_senha
@@ -34,6 +37,31 @@ def get_pessoas(pessoa_id: int | None = None) -> list[dict[str, Any]]:
 
 def get_tipos_perfil(tipos_perfil_id: int | None = None) -> list[dict[str, Any]]:
     return model.listar_tipos_perfil(tipos_perfil_id)
+
+
+async def put_foto_perfil(
+    pessoa_id: int,
+    foto: UploadFile,
+    token: str,
+) -> dict[str, Any]:
+    userController.autenticar(pessoa_id, token)
+    caminho_publico, caminho_arquivo = await store_image(foto, "perfis")
+
+    try:
+        if not model.atualizar_foto_perfil(pessoa_id, caminho_publico):
+            raise HTTPException(
+                status_code=404,
+                detail="Pessoa não encontrada.",
+            )
+    except (HTTPException, SQLAlchemyError):
+        caminho_arquivo.unlink(missing_ok=True)
+        raise
+
+    return {
+        "success": True,
+        "message": "Foto de perfil atualizada com sucesso.",
+        "foto_perfil": caminho_publico,
+    }
 
     
 def post_pessoa(data: dict[str, Any]) -> dict[str, Any]:
