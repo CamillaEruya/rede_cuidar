@@ -4,7 +4,7 @@ import httpx
 from fastapi import Request, UploadFile
 
 from app.modules.user import userController
-from app.modules.user.userController import API_BASE_URL, authorization_headers
+from app.modules.user.userController import FILE_BASE_URL, API_BASE_URL, authorization_headers
 
 MAX_FOTO_SIZE = 5 * 1024 * 1024
 
@@ -63,14 +63,14 @@ async def listar_publicacoes(
         foto_url = None
         if isinstance(foto, str):
             if foto.startswith("/uploads/"):
-                foto_url = f"{API_BASE_URL}{foto}"
+                foto_url = f"{FILE_BASE_URL}{foto}"
             elif foto.startswith(("http://", "https://")):
                 foto_url = foto
         foto_perfil = publicacao.get("foto_perfil")
         foto_perfil_url = None
         if isinstance(foto_perfil, str):
             if foto_perfil.startswith("/uploads/"):
-                foto_perfil_url = f"{API_BASE_URL}{foto_perfil}"
+                foto_perfil_url = f"{FILE_BASE_URL}{foto_perfil}"
             elif foto_perfil.startswith(("http://", "https://")):
                 foto_perfil_url = foto_perfil
         publicacoes.append(

@@ -6,6 +6,7 @@ from fastapi import Request
 
 load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL", "").rstrip("/")
+FILE_BASE_URL = os.getenv("FILE_BASE_URL", "").rstrip("/")
 BEARER_SCHEME = "Bearer"
 
 

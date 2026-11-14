@@ -5,7 +5,7 @@ import httpx
 from fastapi import Request, UploadFile
 
 from app.modules.user import userController
-from app.modules.user.userController import API_BASE_URL, authorization_headers
+from app.modules.user.userController import FILE_BASE_URL, API_BASE_URL, authorization_headers
 
 PROFISSIONAL_FIELDS = (
     "endereco",
@@ -105,7 +105,7 @@ async def perfil_context(request: Request) -> dict[str, Any]:
             "nome_razao": pessoa.get("nome_razao"),
             "icon_nome_razao": userController.iconAvatar(pessoa.get("nome_razao") or ""),
             "foto_perfil_url": (
-                f"{API_BASE_URL}{pessoa['foto_perfil']}"
+                f"{FILE_BASE_URL}{pessoa['foto_perfil']}"
                 if isinstance(pessoa.get("foto_perfil"), str)
                 and pessoa["foto_perfil"].startswith("/uploads/")
                 else None
