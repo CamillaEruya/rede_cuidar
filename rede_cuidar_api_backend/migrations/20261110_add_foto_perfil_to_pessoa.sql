@@ -1,0 +1,2 @@
+ALTER TABLE pessoa
+    ADD COLUMN foto_perfil VARCHAR(255) NULL;

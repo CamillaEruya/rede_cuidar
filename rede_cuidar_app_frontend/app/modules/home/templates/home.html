@@ -57,7 +57,7 @@
           <div class="form-options"><label class="remember"><input type="checkbox"><span></span>Lembrar de mim</label><a
               href="#" onclick="return false;">Esqueci minha senha</a></div>
           <button class="primary-button" type="submit">Entrar na Rede <span>&rarr;</span></button>
-          {% if not success_login %}
+          {% if message_login %}
             <p class="login-feedback" id="login-feedback">{{ message_login }}</p>
           {% endif %}
         </form>

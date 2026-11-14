@@ -19,12 +19,12 @@ templates = Jinja2Templates(
 
 @router.get("/", response_class=HTMLResponse)
 async def profissionais(request: Request) -> HTMLResponse:
-    success, message = await userController.autenticar(request)
+    success, _ = await userController.autenticar(request)
 
     if not success:
         return RedirectResponse(url="/", status_code=303)
 
-    context = profissionaisController.profissionais_context(request)
+    context = await profissionaisController.profissionais_context(request)
     return templates.TemplateResponse(
         request=request,
         name="profissionais.html",

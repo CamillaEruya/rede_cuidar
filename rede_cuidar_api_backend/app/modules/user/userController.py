@@ -55,7 +55,7 @@ def post_login(data: dict[str, Any]) -> dict[str, Any]:
         model.cadastrar_rate_limit("LOGIN", momento, data.get("email"))
         raise HTTPException(
             status_code=404,
-            detail="E-mail não encontrado ou não existe em nosso cadastro."
+            detail="E-mail não cadastrado."
         )
     
     if not valida_senha(data.get("senha"), result[0].get("senha")):
@@ -72,5 +72,6 @@ def post_login(data: dict[str, Any]) -> dict[str, Any]:
         "message": "Seja bem-vindo A Rede Atipic.",
         "token": token,
         "id_pessoa": result[0].get("id_pessoa"),
-        "nome_razao": result[0].get("nome_razao")
+        "nome_razao": result[0].get("nome_razao"),
+        "id_tipo_perfil": result[0].get("id_tipo_perfil")
     }

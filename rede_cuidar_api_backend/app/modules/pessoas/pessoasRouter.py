@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, File, UploadFile
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.modules.pessoas import pessoasController as controller
@@ -41,6 +41,19 @@ def update_pessoa(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
 ) -> dict[str, Any]:
     return controller.update_pessoa(pessoa_id, data, credentials.credentials)
+
+
+@router.put("/{pessoa_id}/foto-perfil")
+async def put_foto_perfil(
+    pessoa_id: int,
+    foto: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> dict[str, Any]:
+    return await controller.put_foto_perfil(
+        pessoa_id,
+        foto,
+        credentials.credentials,
+    )
 
 
 @router.delete("/{pessoa_id}")

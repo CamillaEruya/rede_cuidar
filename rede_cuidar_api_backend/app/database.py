@@ -3,13 +3,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, URL
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT_DIR / ".env")
 
 
-def _database_url() -> str:
+def _database_url() -> str | URL:
     driver = os.getenv("DB_CONNECTION", "sqlite").lower()
 
     if driver == "sqlite":
@@ -25,7 +25,14 @@ def _database_url() -> str:
         username = os.getenv("DB_USERNAME", "root")
         password = os.getenv("DB_PASSWORD", "")
         database = os.getenv("DB_DATABASE", "")
-        return f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}"
+        return URL.create(
+            "mysql+pymysql",
+            username=username,
+            password=password,
+            host=host,
+            port=int(port),
+            database=database,
+        )
 
     raise ValueError(f"DB_CONNECTION não suportado: {driver}")
 

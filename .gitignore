@@ -1,0 +1,20 @@
+# Backups do banco de dados
+backups/
+*.sql.gz
+
+# Variáveis de ambiente e credenciais
+.env
+.env.*
+!.env.example
+
+# Arquivos temporários do Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Arquivos do sistema e editor
+.DS_Store
+Thumbs.db
+.vscode/
