@@ -6,7 +6,7 @@ from fastapi import Request, UploadFile
 from app.modules.user import userController
 from app.modules.user.userController import API_BASE_URL, authorization_headers
 
-API_PUBLIC_URL = os.getenv("API_PUBLIC_URL", "http://localhost:8001").rstrip("/")
+FILE_BASE_URL = os.getenv("FILE_BASE_URL", "").rstrip("/")
 
 
 def eh_admin(request: Request) -> bool:
@@ -39,7 +39,7 @@ def agenda_context(request: Request) -> dict[str, Any]:
                 for ev in eventos:
                     url = ev.get("midia_url")
                     if url and url.startswith("/"):
-                        ev["midia_url"] = f"{API_PUBLIC_URL}{url}"
+                        ev["midia_url"] = f"{FILE_BASE_URL}{url}"
     except Exception as e:
         print(f"Aviso: Não foi possível carregar agenda da API backend ({e}).")
 
